@@ -232,3 +232,16 @@ WHO_KNOWLEDGE = [
         "content": "Critical dengue risk window: 3+ consecutive days with rainfall >20mm, humidity >80%, temperature 25-32°C. Diurnal temperature range below 8°C indicates high humidity retention favoring mosquito survival. Sunlight hours below 6 per day reduces evaporation and increases stagnant water persistence. Annual Dhaka rainfall: 1,854mm concentrated June-September.",
     },
 ]
+
+CITIZEN_REPORT_COUNTS = {
+    "DHK-001": 8,
+    "DHK-002": 2,
+    "DHK-003": 1,
+    "DHK-004": 3,
+    "DHK-005": 2,
+    "DHK-006": 1,
+    "DHK-007": 2,
+    "DHK-008": 5,
+    "DHK-009": 3,
+    "DHK-010": 2,
+}

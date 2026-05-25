@@ -6,7 +6,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.database import get_db
-from demo_data import WEATHER, WARDS
+from demo_data import CITIZEN_REPORT_COUNTS, WEATHER, WARDS
 from models.swapi_model import (
     SWAPIResult,
     WeatherData,
@@ -63,7 +63,7 @@ def _get_ward(ward_id: str):
 
 
 @router.get("/all")
-def list_swapi_alerts():
+async def list_swapi_alerts(db: AsyncSession = Depends(get_db)):
     results = []
     for ward in WARDS:
         cached = _cache.get(ward["ward_id"])
@@ -80,7 +80,17 @@ def list_swapi_alerts():
                 drainage_coefficient=ward["drainage_coefficient"],
             )
             _cache[ward["ward_id"]] = {"result": result, "cached_at": datetime.utcnow()}
-        results.append(_result_to_dict(result, include_color=True))
+        citizen_count = (
+            await db.execute(
+                text("SELECT COUNT(*) FROM citizen_reports WHERE ward_id = :ward_id"),
+                {"ward_id": ward["ward_id"]},
+            )
+        ).scalar_one()
+        if citizen_count == 0:
+            citizen_count = CITIZEN_REPORT_COUNTS.get(ward["ward_id"], 0)
+        payload = _result_to_dict(result, include_color=True)
+        payload["citizen_report_count"] = int(citizen_count)
+        results.append(payload)
     return results
 
 
