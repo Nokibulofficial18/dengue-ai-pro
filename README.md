@@ -2,6 +2,10 @@
 
 AI-native dengue prevention intelligence system for Bangladesh. DengueAI Pro combines SWAPI risk scoring, RAG-grounded guidance, and citizen reporting to help authorities act before outbreaks escalate.
 
+## Live Demo
+
+https://dengueaipro.netlify.app/
+
 ## Highlights
 
 - Live dengue risk heatmap for 10 Dhaka wards
@@ -10,6 +14,25 @@ AI-native dengue prevention intelligence system for Bangladesh. DengueAI Pro com
 - Citizen photo reporting with AI verification and points
 - Authority command dashboard
 - Works in demo mode without any API keys
+
+## How It Works
+
+1) Data Sources
+	- Weather inputs (rainfall, humidity, sunlight, temperature range)
+	- Ward drainage coefficients and population density
+	- Citizen reports and water detections
+
+2) SWAPI Risk Engine
+	- Computes a risk score per ward using normalized weather + drainage signals
+	- Produces a risk level and contribution breakdown for explainability
+
+3) RAG + LLM Dispatch
+	- Retrieves WHO/DGHS guidance from the in-memory knowledge store
+	- Generates dispatch recommendations with citations
+
+4) Citizen Reporting
+	- Photo or text reports are verified and rewarded
+	- Verified reports feed into the detection layer
 
 ## Tech Stack
 

@@ -21,6 +21,10 @@ export default function App() {
       .catch(() => setBackendOnline(false));
   }, []);
 
+  useEffect(() => {
+    axios.get(`${API_URL}/api/health`).catch(() => {});
+  }, []);
+
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-[#0F1A2E] text-white">
