@@ -9,10 +9,10 @@ function ProgressBar({ label, value, color }) {
   return (
     <div className="mb-2">
       <div className="flex justify-between text-xs mb-1">
-        <span>{label}</span>
-        <span>{value}%</span>
+        <span className="text-slate-200">{label}</span>
+        <span className="text-slate-400">{value}%</span>
       </div>
-      <div className="h-2 w-full rounded-full bg-[#0F1A2E]">
+      <div className="h-2 w-full rounded-full bg-white/5">
         <div
           className="h-2 rounded-full"
           style={{ width: `${value}%`, background: color }}
@@ -28,11 +28,11 @@ export default function WardCard({ ward, onReport }) {
   const displayScore = ward.swapi_score ?? ward.score ?? 0;
 
   return (
-    <div className="bg-[#1A2E4A] rounded-lg p-4 shadow-lg text-white min-w-[260px]">
+    <div className="card p-5 text-white min-w-[260px] hover:shadow-2xl transition-shadow">
       <div className="flex items-center justify-between">
         <div>
           <div className="text-lg font-semibold">{ward.ward_name}</div>
-          <div className="text-xs text-gray-300">{ward.ward_id}</div>
+          <div className="text-xs text-slate-400">{ward.ward_id}</div>
         </div>
         <div className="text-right">
           <div className="text-2xl font-bold" style={{ color }}>
@@ -40,7 +40,7 @@ export default function WardCard({ ward, onReport }) {
           </div>
           <span
             className="inline-block rounded-full px-2 py-1 text-[10px] uppercase"
-            style={{ background: color, color: "#0F1A2E" }}
+            style={{ background: `${color}33`, color }}
           >
             {ward.risk_level}
           </span>
@@ -68,12 +68,12 @@ export default function WardCard({ ward, onReport }) {
       </div>
 
       <div className="flex items-center justify-between mt-3">
-        <span className="rounded-full bg-[#0F7B6C] px-2 py-1 text-xs">
+        <span className="rounded-full bg-emerald-400/15 text-emerald-200 px-2 py-1 text-xs badge">
           Citizen reports: {ward.citizen_report_count ?? ward.report_count ?? 0}
         </span>
         <button
           onClick={onReport}
-          className="rounded-full bg-[#0F7B6C] px-3 py-1 text-xs font-semibold"
+          className="rounded-full px-3 py-1 text-xs font-semibold btn btn-primary"
         >
           Report Stagnant Water
         </button>

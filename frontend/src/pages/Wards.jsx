@@ -41,7 +41,7 @@ export default function Wards() {
           [1, 2, 3, 4].map((item) => (
             <div
               key={item}
-              className="h-28 rounded-lg bg-[#0F1A2E] animate-pulse"
+              className="h-28 rounded-lg bg-white/5 animate-pulse"
             />
           ))}
         {!loading &&

@@ -78,27 +78,27 @@ export default function DispatchDashboard() {
   };
 
   return (
-    <div className="bg-[#1A2E4A] rounded-xl p-4">
+    <div className="card p-5">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
         <div className="text-sm font-semibold">
-          {summary.critical} Critical Wards | {summary.officers} Officers Needed |{" "}
+          {summary.critical} Critical Wards · {summary.officers} Officers Needed ·{" "}
           {summary.larvicide.toFixed(1)} Litres Larvicide
         </div>
-        <div className="flex items-center gap-3 text-xs text-gray-300">
+        <div className="flex items-center gap-3 text-xs text-slate-400">
           <span>Last updated: {lastUpdated ? lastUpdated.toLocaleTimeString() : "--"}</span>
           <span>Refresh in {countdown}s</span>
           <button
             onClick={() => window.print()}
-            className="rounded-full bg-[#0F7B6C] px-3 py-1 text-xs"
+            className="rounded-full px-3 py-1 text-xs btn btn-secondary"
           >
             Print Dispatch Orders
           </button>
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-2xl border border-white/10">
         <table className="w-full text-sm">
-          <thead className="text-gray-300">
+          <thead className="text-slate-400 bg-white/5">
             <tr>
               <th className="text-left py-2">Priority</th>
               <th className="text-left py-2">Ward</th>
@@ -120,13 +120,13 @@ export default function DispatchDashboard() {
             )}
             {!loading && orders.map((order) => {
               const isCritical = (order.swapi_score || 0) > 0.7;
-              const rowColor = isCritical ? "bg-[#3A1F2A]" : "bg-[#3A2B12]";
+              const rowColor = isCritical ? "bg-rose-500/10" : "bg-amber-500/10";
               return (
                 <Fragment key={order.ward_id}>
                   <tr className={`${rowColor} ${newOrders[order.ward_id] ? "animate-pulse" : ""}`}>
                     <td className="py-2">
                       <span
-                        className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#0F7B6C] text-xs"
+                        className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-cyan-500/20 text-cyan-200 text-xs"
                       >
                         {order.priority_rank}
                       </span>
@@ -140,8 +140,8 @@ export default function DispatchDashboard() {
                       <span
                         className={`rounded-full px-2 py-1 text-xs ${
                           order.status === "confirmed"
-                            ? "bg-emerald-500 text-white"
-                            : "bg-gray-600"
+                            ? "bg-emerald-500/20 text-emerald-200"
+                            : "bg-slate-500/30 text-slate-200"
                         }`}
                       >
                         {order.status || "pending"}
@@ -155,24 +155,24 @@ export default function DispatchDashboard() {
                             [order.ward_id]: !prev[order.ward_id],
                           }))
                         }
-                        className="rounded bg-[#0F7B6C] px-2 py-1 text-xs"
+                        className="rounded bg-cyan-500/20 px-2 py-1 text-xs text-cyan-200 btn"
                       >
                         View AI Reasoning
                       </button>
                       <button
                         onClick={() => confirmDispatch(order.ward_id)}
-                        className="rounded bg-[#E8A020] px-2 py-1 text-xs text-[#0F1A2E]"
+                        className="rounded bg-amber-400 px-2 py-1 text-xs text-[#0b1220] btn btn-amber"
                       >
                         Confirm Dispatch
                       </button>
                     </td>
                   </tr>
                   {expanded[order.ward_id] && (
-                    <tr className="bg-[#14233B]">
+                    <tr className="bg-white/5">
                       <td colSpan={8} className="p-3 text-xs">
                         <div className="font-semibold mb-1">Reasoning</div>
                         <div>{order.reasoning || order.llm_reasoning}</div>
-                        <div className="mt-2 italic text-gray-300">
+                        <div className="mt-2 italic text-slate-400">
                           {order.rag_citation}
                         </div>
                       </td>

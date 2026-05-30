@@ -60,7 +60,7 @@ export default function LLMChat() {
   };
 
   return (
-    <div className="bg-[#1A2E4A] rounded-xl p-4 h-full flex flex-col">
+    <div className="card p-5 h-full flex flex-col">
       <div className="text-sm font-semibold mb-2">Authority LLM Chat</div>
 
       <div className="flex flex-wrap gap-2 mb-3">
@@ -68,7 +68,7 @@ export default function LLMChat() {
           <button
             key={text}
             onClick={() => sendMessage(text)}
-            className="rounded-full bg-[#0F7B6C] px-3 py-1 text-xs"
+            className="rounded-full bg-cyan-500/20 text-cyan-200 px-3 py-1 text-xs btn"
           >
             {text}
           </button>
@@ -79,33 +79,33 @@ export default function LLMChat() {
         {messages.map((msg, idx) => (
           <div
             key={`${msg.role}-${idx}`}
-            className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
+            className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${
               msg.role === "user"
-                ? "ml-auto bg-[#0F7B6C]"
-                : "bg-[#0F1A2E]"
+                ? "ml-auto bg-gradient-to-r from-cyan-500 to-emerald-400 text-[#0b1220]"
+                : "bg-white/5"
             }`}
           >
             <div>{msg.content}</div>
-            <div className="mt-1 text-[10px] text-gray-400 flex items-center justify-between">
+            <div className="mt-1 text-[10px] text-slate-400 flex items-center justify-between">
               <span>{msg.timestamp}</span>
               {msg.role === "assistant" && (
                 <button
                   onClick={() => navigator.clipboard.writeText(msg.content)}
-                  className="text-[#E8A020]"
+                  className="text-amber-300"
                 >
                   Copy
                 </button>
               )}
             </div>
             {msg.role === "assistant" && (
-              <div className="mt-1 text-[10px] text-gray-400">
+              <div className="mt-1 text-[10px] text-slate-400">
                 Source: {msg.source || "Demo"}
               </div>
             )}
           </div>
         ))}
         {loading && (
-          <div className="max-w-[60%] rounded-lg bg-[#0F1A2E] px-3 py-2 text-sm">
+          <div className="max-w-[60%] rounded-2xl bg-white/5 px-3 py-2 text-sm">
             <span className="inline-flex gap-1">
               <span className="animate-pulse">•</span>
               <span className="animate-pulse delay-100">•</span>
@@ -128,17 +128,17 @@ export default function LLMChat() {
           }}
           rows={2}
           placeholder="Ask DengueAI Pro anything about current risk..."
-          className="flex-1 rounded-lg bg-[#0F1A2E] px-3 py-2 text-sm outline-none resize-none"
+          className="flex-1 rounded-2xl px-3 py-2 text-sm outline-none resize-none input"
         />
         <button
           onClick={() => sendMessage(input)}
-          className="rounded-lg bg-[#E8A020] px-4 py-2 text-sm font-semibold text-[#0F1A2E]"
+          className="rounded-2xl px-4 py-2 text-sm font-semibold btn btn-amber"
         >
           Send
         </button>
       </div>
 
-      <div className="mt-3 text-[10px] text-gray-400">
+      <div className="mt-3 text-[10px] text-slate-400">
         Responses grounded in WHO guidelines and DGHS case records
       </div>
     </div>

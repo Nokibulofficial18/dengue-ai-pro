@@ -10,10 +10,10 @@ export default function Authority() {
         <div className="text-2xl font-semibold">
           Authority Command Dashboard — DNCC
         </div>
-        <div className="text-sm text-gray-300">
+        <div className="text-sm text-slate-300">
           Powered by DengueAI Pro | RAG-grounded LLM Dispatch Intelligence
         </div>
-        <span className="absolute right-0 top-0 rounded-full bg-[#E8A020] px-3 py-1 text-xs font-semibold text-[#0F1A2E]">
+        <span className="absolute right-0 top-0 rounded-full bg-amber-300/90 px-3 py-1 text-xs font-semibold text-[#0b1220]">
           DEMO MODE
         </span>
       </div>
@@ -22,7 +22,7 @@ export default function Authority() {
         <button
           onClick={() => setTab("dispatch")}
           className={`flex-1 rounded-full px-3 py-2 text-sm ${
-            tab === "dispatch" ? "bg-[#0F7B6C]" : "bg-[#1A2E4A]"
+            tab === "dispatch" ? "bg-cyan-500/20 text-cyan-200" : "bg-white/5"
           }`}
         >
           Dispatch
@@ -30,7 +30,7 @@ export default function Authority() {
         <button
           onClick={() => setTab("chat")}
           className={`flex-1 rounded-full px-3 py-2 text-sm ${
-            tab === "chat" ? "bg-[#0F7B6C]" : "bg-[#1A2E4A]"
+            tab === "chat" ? "bg-cyan-500/20 text-cyan-200" : "bg-white/5"
           }`}
         >
           Chat

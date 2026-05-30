@@ -27,49 +27,55 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-[#0F1A2E] text-white">
+      <div className="min-h-screen bg-[#0b1220] text-slate-50">
         {!backendOnline && (
-          <div className="bg-[#E8A020] text-[#0F1A2E] text-center text-sm py-2">
+          <div className="bg-gradient-to-r from-amber-300 to-amber-500 text-[#0b1220] text-center text-sm py-2">
             Running in offline demo mode — using sample Dhaka data
           </div>
         )}
-        <nav className="bg-[#1A3C5E] px-6 py-4 flex items-center justify-between">
+        <nav className="glass px-6 py-4 flex items-center justify-between sticky top-0 z-40 shadow-lg">
           <div className="flex items-center gap-6">
-            <Link to="/" className="text-xl font-bold text-[#0F7B6C]">
+            <Link to="/" className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-emerald-300">
               DengueAI Pro
             </Link>
             <div className="hidden md:flex items-center gap-4">
               <Link
                 to="/"
-                className="text-sm font-medium hover:text-[#0F7B6C]"
+                className="text-sm font-medium text-slate-200 hover:text-cyan-300"
               >
                 Live Map
               </Link>
               <Link
                 to="/wards"
-                className="text-sm font-medium hover:text-[#0F7B6C]"
+                className="text-sm font-medium text-slate-200 hover:text-cyan-300"
               >
                 Ward Details
               </Link>
               <Link
                 to="/citizen"
-                className="text-sm font-medium hover:text-[#0F7B6C]"
+                className="text-sm font-medium text-slate-200 hover:text-cyan-300"
               >
                 Citizen Reports
               </Link>
               <Link
                 to="/authority"
-                className="text-sm font-medium hover:text-[#0F7B6C]"
+                className="text-sm font-medium text-slate-200 hover:text-cyan-300"
               >
                 Authority Dashboard
+              </Link>
+              <Link
+                to="/demo"
+                className="text-sm font-medium text-slate-200 hover:text-cyan-300"
+              >
+                Demo
               </Link>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="rounded-full bg-[#0F7B6C] px-3 py-1 text-xs font-semibold">
+            <span className="rounded-full bg-emerald-400/20 text-emerald-200 px-3 py-1 text-xs font-semibold badge">
               SDG 03
             </span>
-            <span className="rounded-full bg-[#E8A020] px-3 py-1 text-xs font-semibold text-[#0F1A2E]">
+            <span className="rounded-full bg-amber-300/90 px-3 py-1 text-xs font-semibold text-[#0b1220] badge">
               BuildFest 2026
             </span>
             <span className="flex items-center gap-2 text-xs">
@@ -81,7 +87,7 @@ export default function App() {
               {backendOnline ? "Backend Online" : "Backend Offline"}
             </span>
             <button
-              className="md:hidden text-sm"
+              className="md:hidden text-sm text-slate-100"
               onClick={() => setMenuOpen((prev) => !prev)}
             >
               ☰
@@ -89,7 +95,7 @@ export default function App() {
           </div>
         </nav>
         {menuOpen && (
-          <div className="md:hidden bg-[#1A3C5E] px-6 py-3 flex flex-col gap-2">
+          <div className="md:hidden surface px-6 py-3 flex flex-col gap-2">
             <Link to="/" onClick={() => setMenuOpen(false)}>
               Live Map
             </Link>

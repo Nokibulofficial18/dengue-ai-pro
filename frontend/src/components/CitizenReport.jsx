@@ -54,18 +54,18 @@ export default function CitizenReport({ ward, open, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="w-full max-w-md rounded-xl bg-[#1A2E4A] p-6 shadow-xl">
+      <div className="w-full max-w-md card p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <div className="text-lg font-semibold">{ward.ward_name}</div>
-            <div className="text-xs text-gray-300">Citizen Report</div>
+            <div className="text-xs text-slate-400">Citizen Report</div>
           </div>
-          <button onClick={onClose} className="text-gray-300 hover:text-white">
+          <button onClick={onClose} className="text-slate-300 hover:text-white">
             ✕
           </button>
         </div>
 
-        <label className="block border-2 border-dashed border-[#0F7B6C] rounded-lg p-4 text-center cursor-pointer">
+        <label className="block border-2 border-dashed border-cyan-400/40 rounded-2xl p-4 text-center cursor-pointer surface-muted">
           <input
             type="file"
             accept="image/*"
@@ -79,22 +79,22 @@ export default function CitizenReport({ ward, open, onClose }) {
 
         <button
           onClick={submitReport}
-          className="mt-4 w-full rounded-lg bg-[#0F7B6C] py-2 text-sm font-semibold"
+          className="mt-4 w-full rounded-2xl py-2 text-sm font-semibold btn btn-primary"
         >
           {loading ? "Submitting..." : "Submit Report"}
         </button>
 
         {result && (
-          <div className="mt-4 rounded-lg bg-[#0F1A2E] p-3 text-sm">
+          <div className="mt-4 rounded-2xl bg-white/5 p-3 text-sm">
             {result.verified ? (
               <div className="text-emerald-300">
                 ✓ Stagnant water confirmed! +{points} points
-                <div className="text-xs text-gray-300 mt-1">{result.message_bn}</div>
+                <div className="text-xs text-slate-400 mt-1">{result.message_bn}</div>
               </div>
             ) : (
               <div className="text-amber-300">
                 No stagnant water detected
-                <div className="text-xs text-gray-300 mt-1">{result.message_bn}</div>
+                <div className="text-xs text-slate-400 mt-1">{result.message_bn}</div>
               </div>
             )}
           </div>

@@ -18,7 +18,7 @@ const API_URL = import.meta.env.VITE_API_URL || "";
 
 function Legend() {
   return (
-    <div className="absolute bottom-4 left-4 rounded-lg bg-[#1A2E4A] p-3 text-xs shadow-lg">
+    <div className="absolute bottom-4 left-4 surface p-3 text-xs shadow-lg">
       <div className="font-semibold mb-2">Risk Legend</div>
       <div className="flex items-center gap-2">
         <span>🔴</span>
@@ -65,9 +65,9 @@ export default function HeatMap() {
   }, []);
 
   return (
-    <div className="relative h-full min-h-[500px] rounded-xl overflow-hidden border border-[#1A3C5E]">
+    <div className="relative h-full min-h-[500px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
       {loading && (
-        <div className="absolute inset-0 z-10 bg-[#1A2E4A] animate-pulse" />
+        <div className="absolute inset-0 z-10 bg-white/5 animate-pulse" />
       )}
       <MapContainer center={[23.78, 90.4]} zoom={12} className="h-full w-full">
         <ZoomControl position="bottomright" />

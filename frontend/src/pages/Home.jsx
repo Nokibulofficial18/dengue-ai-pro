@@ -55,19 +55,19 @@ export default function Home() {
       <div className="grid grid-cols-1 lg:grid-cols-[70%_30%] gap-4 p-6">
         <HeatMap />
         <div className="space-y-4">
-          <div className="bg-[#1A2E4A] rounded-xl p-4">
-            <div className="text-sm font-semibold mb-3">Summary</div>
+          <div className="card p-5">
+            <div className="text-sm font-semibold mb-3">Today’s Summary</div>
             {loadingWards ? (
               <div className="space-y-2">
                 {[1, 2, 3].map((item) => (
                   <div
                     key={item}
-                    className="h-6 rounded bg-[#0F1A2E] animate-pulse"
+                    className="h-6 rounded bg-white/5 animate-pulse"
                   />
                 ))}
               </div>
             ) : (
-              <div className="text-sm text-gray-300 space-y-2">
+              <div className="text-sm text-slate-300 space-y-2">
                 <div>Top risk wards today:</div>
                 <ul className="space-y-1">
                   {summaryTop.map((ward) => (
@@ -78,21 +78,21 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
-                <div className="pt-2 text-xs text-gray-400">
+                <div className="pt-2 text-xs text-slate-400">
                   Visit Ward Details for full breakdowns and Citizen Reports to submit.
                 </div>
               </div>
             )}
           </div>
 
-          <div className="bg-[#1A2E4A] rounded-xl p-4">
+          <div className="card p-5">
             <div className="text-sm font-semibold mb-3">Citizen Leaderboard</div>
             {loadingLeaderboard ? (
               <div className="space-y-2">
                 {[1, 2, 3].map((item) => (
                   <div
                     key={item}
-                    className="h-6 rounded bg-[#0F1A2E] animate-pulse"
+                    className="h-6 rounded bg-white/5 animate-pulse"
                   />
                 ))}
               </div>
@@ -103,7 +103,7 @@ export default function Home() {
                     <span>
                       #{entry.rank} {entry.ward_name}
                     </span>
-                    <span className="text-gray-300">
+                    <span className="text-slate-300">
                       {entry.reports} reports · {entry.points} points
                     </span>
                   </li>

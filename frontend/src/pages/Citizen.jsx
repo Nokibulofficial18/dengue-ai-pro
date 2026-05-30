@@ -35,13 +35,13 @@ export default function Citizen() {
     <div className="p-6">
       <div className="text-xl font-semibold mb-4">Citizen Reporting</div>
       <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] gap-4">
-        <div className="bg-[#1A2E4A] rounded-xl p-4">
+        <div className="card p-5">
           <div className="text-sm font-semibold mb-3">Report Stagnant Water</div>
           <div className="flex items-center gap-2">
             <select
               value={reportWardId}
               onChange={(e) => setReportWardId(e.target.value)}
-              className="flex-1 rounded-lg bg-[#0F1A2E] px-3 py-2 text-sm"
+              className="flex-1 rounded-2xl px-3 py-2 text-sm input"
             >
               {wardOptions.map((ward) => (
                 <option key={ward.ward_id} value={ward.ward_id}>
@@ -51,24 +51,24 @@ export default function Citizen() {
             </select>
             <button
               onClick={() => setShowReport(true)}
-              className="rounded-lg bg-[#0F7B6C] px-3 py-2 text-sm font-semibold"
+              className="rounded-2xl px-3 py-2 text-sm font-semibold btn btn-primary"
             >
               Report
             </button>
           </div>
-          <div className="text-xs text-gray-300 mt-3">
+          <div className="text-xs text-slate-300 mt-3">
             Upload a photo or submit a quick report to earn points.
           </div>
         </div>
 
-        <div className="bg-[#1A2E4A] rounded-xl p-4">
+        <div className="card p-5">
           <div className="text-sm font-semibold mb-3">Leaderboard</div>
           {loading ? (
             <div className="space-y-2">
               {[1, 2, 3, 4].map((item) => (
                 <div
                   key={item}
-                  className="h-6 rounded bg-[#0F1A2E] animate-pulse"
+                  className="h-6 rounded bg-white/5 animate-pulse"
                 />
               ))}
             </div>
@@ -79,7 +79,7 @@ export default function Citizen() {
                   <span>
                     #{entry.rank} {entry.ward_name}
                   </span>
-                  <span className="text-gray-300">
+                  <span className="text-slate-300">
                     {entry.reports} reports · {entry.points} points
                   </span>
                 </li>
