@@ -55,7 +55,7 @@ export default function App() {
                 to="/citizen"
                 className="text-sm font-medium text-slate-200 hover:text-cyan-300"
               >
-                Citizen Reports
+                User Dashboard
               </Link>
               <Link
                 to="/authority"
@@ -103,7 +103,7 @@ export default function App() {
               Ward Details
             </Link>
             <Link to="/citizen" onClick={() => setMenuOpen(false)}>
-              Citizen Reports
+              User Dashboard
             </Link>
             <Link to="/authority" onClick={() => setMenuOpen(false)}>
               Authority Dashboard
