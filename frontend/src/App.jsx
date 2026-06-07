@@ -27,13 +27,13 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-[#0b1220] text-slate-50">
+      <div className="min-h-screen bg-[#0b1220] text-slate-50 md:pt-0 pt-[73px]">
         {!backendOnline && (
           <div className="bg-gradient-to-r from-amber-300 to-amber-500 text-[#0b1220] text-center text-sm py-2">
             Running in offline demo mode — using sample Dhaka data
           </div>
         )}
-        <nav className="glass px-6 py-4 flex items-center justify-between sticky top-0 z-40 shadow-lg">
+        <nav className="glass px-6 py-4 flex items-center justify-between fixed md:sticky top-0 left-0 right-0 z-40 shadow-lg">
           <div className="flex items-center gap-6">
             <Link to="/" className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-emerald-300">
               DengueAI Pro
