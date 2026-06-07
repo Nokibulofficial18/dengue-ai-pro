@@ -43,6 +43,12 @@ export default function App() {
                 to="/"
                 className="text-sm font-medium text-slate-200 hover:text-cyan-300"
               >
+                Home
+              </Link>
+              <Link
+                to="/map"
+                className="text-sm font-medium text-slate-200 hover:text-cyan-300"
+              >
                 Live Map
               </Link>
               <Link
@@ -55,19 +61,13 @@ export default function App() {
                 to="/citizen"
                 className="text-sm font-medium text-slate-200 hover:text-cyan-300"
               >
-                User Dashboard
+                Citizen Reports
               </Link>
               <Link
                 to="/authority"
                 className="text-sm font-medium text-slate-200 hover:text-cyan-300"
               >
                 Authority Dashboard
-              </Link>
-              <Link
-                to="/demo"
-                className="text-sm font-medium text-slate-200 hover:text-cyan-300"
-              >
-                Demo
               </Link>
             </div>
           </div>
@@ -97,28 +97,28 @@ export default function App() {
         {menuOpen && (
           <div className="md:hidden surface px-6 py-3 flex flex-col gap-2">
             <Link to="/" onClick={() => setMenuOpen(false)}>
+              Home
+            </Link>
+            <Link to="/map" onClick={() => setMenuOpen(false)}>
               Live Map
             </Link>
             <Link to="/wards" onClick={() => setMenuOpen(false)}>
               Ward Details
             </Link>
             <Link to="/citizen" onClick={() => setMenuOpen(false)}>
-              User Dashboard
+              Citizen Reports
             </Link>
             <Link to="/authority" onClick={() => setMenuOpen(false)}>
               Authority Dashboard
             </Link>
-            <Link to="/demo" onClick={() => setMenuOpen(false)}>
-              Demo
-            </Link>
           </div>
         )}
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Demo />} />
+          <Route path="/map" element={<Home />} />
           <Route path="/wards" element={<Wards />} />
           <Route path="/citizen" element={<Citizen />} />
           <Route path="/authority" element={<Authority />} />
-          <Route path="/demo" element={<Demo />} />
         </Routes>
       </div>
     </BrowserRouter>
