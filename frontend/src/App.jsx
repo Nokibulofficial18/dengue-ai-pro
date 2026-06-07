@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import axios from "axios";
 
@@ -13,6 +13,8 @@ const API_URL = import.meta.env.VITE_API_URL || "";
 export default function App() {
   const [backendOnline, setBackendOnline] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const mainRef = useRef(null);
 
   useEffect(() => {
     axios
@@ -24,6 +26,18 @@ export default function App() {
   useEffect(() => {
     axios.get(`${API_URL}/api/health`).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <BrowserRouter>
@@ -95,7 +109,7 @@ export default function App() {
           </div>
         </nav>
         {menuOpen && (
-          <div className="md:hidden surface px-6 py-3 flex flex-col gap-2">
+          <div className="md:hidden fixed left-0 right-0 top-[73px] z-30 surface mx-3 mt-2 rounded-xl shadow-2xl px-6 py-3 flex flex-col gap-2">
             <Link to="/" onClick={() => setMenuOpen(false)}>
               Home
             </Link>
@@ -112,6 +126,15 @@ export default function App() {
               Authority Dashboard
             </Link>
           </div>
+        )}
+        {showScrollTop && (
+          <button
+            onClick={scrollToTop}
+            className="md:hidden fixed bottom-6 right-6 z-30 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:shadow-lg shadow-lg text-[#0b1220] p-3 rounded-full transition-transform hover:scale-110"
+            aria-label="Scroll to top"
+          >
+            ↑
+          </button>
         )}
         <Routes>
           <Route path="/" element={<Demo />} />
