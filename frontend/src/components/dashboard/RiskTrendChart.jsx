@@ -6,91 +6,131 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  CartesianGrid,
+  ReferenceLine,
 } from "recharts";
 
-const data = [
-  { day: "Aug 10", risk: 0.32 },
-  { day: "Aug 11", risk: 0.41 },
-  { day: "Aug 12", risk: 0.48 },
-  { day: "Aug 13", risk: 0.58 },
-  { day: "Aug 14", risk: 0.69 },
-  { day: "Aug 15", risk: 0.79 },
-  { day: "Aug 16", risk: 0.84 },
-];
+const DATASETS = {
+  citywide: [
+    { day: "Aug 10", risk: 0.32, rainfall: 12 },
+    { day: "Aug 11", risk: 0.41, rainfall: 18 },
+    { day: "Aug 12", risk: 0.48, rainfall: 25 },
+    { day: "Aug 13", risk: 0.58, rainfall: 42 },
+    { day: "Aug 14", risk: 0.69, rainfall: 35 },
+    { day: "Aug 15", risk: 0.79, rainfall: 15 },
+    { day: "Aug 16", risk: 0.84, rainfall: 8 },
+  ],
+  mirpur: [
+    { day: "Aug 10", risk: 0.45, rainfall: 15 },
+    { day: "Aug 11", risk: 0.54, rainfall: 22 },
+    { day: "Aug 12", risk: 0.68, rainfall: 38 },
+    { day: "Aug 13", risk: 0.79, rainfall: 50 },
+    { day: "Aug 14", risk: 0.88, rainfall: 40 },
+    { day: "Aug 15", risk: 0.91, rainfall: 20 },
+    { day: "Aug 16", risk: 0.92, rainfall: 12 },
+  ],
+  lalbagh: [
+    { day: "Aug 10", risk: 0.38, rainfall: 10 },
+    { day: "Aug 11", risk: 0.49, rainfall: 16 },
+    { day: "Aug 12", risk: 0.55, rainfall: 28 },
+    { day: "Aug 13", risk: 0.64, rainfall: 35 },
+    { day: "Aug 14", risk: 0.74, rainfall: 29 },
+    { day: "Aug 15", risk: 0.82, rainfall: 18 },
+    { day: "Aug 16", risk: 0.86, rainfall: 9 },
+  ],
+};
 
 export default function RiskTrendChart() {
-  const [metric, setMetric] = useState("citywide");
+  const [sector, setSector] = useState("citywide");
+  const chartData = DATASETS[sector] || DATASETS.citywide;
+
+  const currentRisk = chartData[chartData.length - 1].risk;
+  const isHigh = currentRisk >= 0.7;
 
   return (
-    <div className="midnight-card p-4 sm:p-5 flex flex-col justify-between">
+    <div className="midnight-card p-4 flex flex-col justify-between">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1B3654]/60">
+      <div className="flex items-center justify-between pb-3 mb-2 border-b border-white/[0.07]">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-[#46C8E5]/15 border border-[#46C8E5]/30 flex items-center justify-center text-[#46C8E5]">
+          <div className="w-6 h-6 rounded-md bg-sky-500/10 border border-sky-500/25 flex items-center justify-center text-sky-400">
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
             </svg>
           </div>
-          <span className="text-sm font-bold text-white">Risk Trend (Next 7 Days)</span>
+          <div>
+            <div className="text-xs font-semibold text-white tracking-tight">Risk Projection (7-Day)</div>
+            <div className="text-[10px] text-slate-400">SWAPI composite vector trajectory</div>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="hidden sm:inline-block text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-[#1B3654] text-[#9FB3C9]">
-            Illustrative forecast
-          </span>
           <select
-            value={metric}
-            onChange={(e) => setMetric(e.target.value)}
-            className="bg-[#0D1C2E] border border-[#1B3654] text-[11px] text-white rounded-lg px-2 py-1 focus:outline-none focus:border-[#46C8E5]"
+            value={sector}
+            onChange={(e) => setSector(e.target.value)}
+            className="bg-[#08111D] border border-white/[0.08] text-[11px] text-slate-200 rounded-md px-2 py-1 focus:outline-none focus:border-sky-400 transition"
           >
-            <option value="citywide">Citywide Risk Index ▾</option>
+            <option value="citywide">Citywide Composite</option>
             <option value="mirpur">Mirpur Sector 10</option>
             <option value="lalbagh">Lalbagh Old City</option>
           </select>
         </div>
       </div>
 
-      {/* Recharts Spline Area Curve matching screenshot */}
-      <div className="h-44 w-full pt-2">
+      {/* Sub-header metric bar */}
+      <div className="flex items-center justify-between px-1 mb-2 text-xs">
+        <div className="flex items-center gap-2">
+          <span className="text-slate-400 text-[11px]">7-Day Peak:</span>
+          <span className={`font-mono font-bold ${isHigh ? "text-rose-400" : "text-amber-400"}`}>
+            {(currentRisk).toFixed(2)} SWAPI
+          </span>
+          <span className={`w-1.5 h-1.5 rounded-full ${isHigh ? "bg-rose-400" : "bg-amber-400"}`} />
+        </div>
+        <div className="flex items-center gap-1.5 text-[10px] font-mono text-rose-400/90">
+          <span className="w-2.5 h-0.5 border-b border-dashed border-rose-400 inline-block" />
+          <span>Critical Threshold (0.70)</span>
+        </div>
+      </div>
+
+      {/* Clean Technical Area Chart */}
+      <div className="h-44 w-full pt-1">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+          <AreaChart data={chartData} margin={{ top: 12, right: 12, left: -26, bottom: 0 }}>
             <defs>
-              {/* Gradient stroke from cyan to violet */}
-              <linearGradient id="strokeGrad" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#46C8E5" />
-                <stop offset="60%" stopColor="#6E85F7" />
-                <stop offset="100%" stopColor="#9B83F5" />
-              </linearGradient>
-              {/* Area fill */}
-              <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#9B83F5" stopOpacity={0.35} />
-                <stop offset="100%" stopColor="#46C8E5" stopOpacity={0.0} />
+              <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#38BDF8" stopOpacity={0.22} />
+                <stop offset="100%" stopColor="#38BDF8" stopOpacity={0.01} />
               </linearGradient>
             </defs>
 
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.06)" vertical={false} />
+
             <XAxis
               dataKey="day"
-              stroke="#9FB3C9"
-              fontSize={11}
+              stroke="#64748B"
+              fontSize={10}
               tickLine={false}
-              axisLine={{ stroke: "rgba(99, 165, 223, 0.2)" }}
+              axisLine={{ stroke: "rgba(255, 255, 255, 0.08)" }}
             />
             <YAxis
               domain={[0, 1.0]}
-              ticks={[0.0, 0.2, 0.4, 0.6, 0.8, 1.0]}
-              stroke="#9FB3C9"
-              fontSize={11}
+              ticks={[0.0, 0.25, 0.5, 0.75, 1.0]}
+              stroke="#64748B"
+              fontSize={10}
               tickLine={false}
-              axisLine={{ stroke: "rgba(99, 165, 223, 0.2)" }}
+              axisLine={{ stroke: "rgba(255, 255, 255, 0.08)" }}
             />
             <Tooltip
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
+                  const item = payload[0].payload;
                   return (
-                    <div className="bg-[#0C1829] border border-[#46C8E5]/40 rounded-lg p-2 text-xs shadow-xl">
-                      <div className="text-[#9FB3C9]">{payload[0].payload.day}</div>
-                      <div className="text-white font-bold text-sm">
-                        Predicted SWAPI: {payload[0].value}
+                    <div className="bg-[#070E1A] border border-white/[0.12] rounded-lg p-2.5 text-xs shadow-2xl">
+                      <div className="text-slate-400 text-[10px] font-mono">{item.day}</div>
+                      <div className="text-white font-bold font-mono text-sm mt-0.5">
+                        SWAPI: {item.risk}
+                      </div>
+                      <div className="text-[10px] text-sky-400 font-mono mt-0.5">
+                        Rainfall: {item.rainfall} mm
                       </div>
                     </div>
                   );
@@ -98,24 +138,20 @@ export default function RiskTrendChart() {
                 return null;
               }}
             />
+            <ReferenceLine
+              y={0.70}
+              stroke="#F43F5E"
+              strokeDasharray="4 4"
+              strokeWidth={1.5}
+            />
             <Area
               type="monotone"
               dataKey="risk"
-              stroke="url(#strokeGrad)"
-              strokeWidth={3}
-              fill="url(#areaFill)"
-              dot={{
-                r: 3.5,
-                fill: "#46C8E5",
-                stroke: "#142235",
-                strokeWidth: 2,
-              }}
-              activeDot={{
-                r: 6,
-                fill: "#9B83F5",
-                stroke: "#FFFFFF",
-                strokeWidth: 2,
-              }}
+              stroke="#38BDF8"
+              strokeWidth={2}
+              fill="url(#trendFill)"
+              dot={{ r: 2.5, fill: "#38BDF8", strokeWidth: 0 }}
+              activeDot={{ r: 4, fill: "#FFFFFF", stroke: "#38BDF8", strokeWidth: 2 }}
             />
           </AreaChart>
         </ResponsiveContainer>

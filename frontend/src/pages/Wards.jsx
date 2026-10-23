@@ -42,41 +42,45 @@ export default function Wards() {
   });
 
   return (
-    <div className="space-y-4 max-w-[1720px] mx-auto animate-in fade-in">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#1B3654]/60 gap-3">
-        <div>
-          <h2 className="text-xl font-bold text-white">Dhaka Ward Analytics &amp; Risk Profiles</h2>
-          <p className="text-xs text-[#9FB3C9]">
-            Detailed factor contributions: Rainfall, Humidity, Sunlight, Temperature, and Drainage
-          </p>
+    <div className="space-y-4 max-w-[1720px] mx-auto animate-in fade-in duration-200">
+      {/* Control Bar */}
+      <div className="midnight-card p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <span className="text-xs font-medium text-slate-300">
+            Showing <strong className="text-white font-mono">{filtered.length}</strong> of {wards.length} Ward Profiles
+          </span>
+          <span className="text-slate-600">|</span>
+          <span className="text-[11px] text-slate-400 font-mono">
+            SWAPI Model Calibration Active
+          </span>
         </div>
+
         <div className="flex items-center gap-2">
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="bg-[#0D1C2E] border border-[#1B3654] text-xs text-white rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#46C8E5]"
+            className="bg-[#08111D] border border-white/[0.08] text-xs text-white rounded-lg px-3 py-1.5 focus:outline-none focus:border-sky-400 transition"
           >
-            <option value="all">All Risk Levels ▾</option>
-            <option value="high">High Risk (&gt;0.70)</option>
-            <option value="medium">Medium Risk (0.40–0.70)</option>
+            <option value="all">All Risk Tiers</option>
+            <option value="high">Critical Risk (&gt;0.70)</option>
+            <option value="medium">Elevated Risk (0.40–0.70)</option>
             <option value="low">Low Risk (&lt;0.40)</option>
           </select>
         </div>
       </div>
 
       {/* Grid of Wards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5">
         {loading &&
           [1, 2, 3, 4, 5, 6].map((item) => (
             <div
               key={item}
-              className="h-56 rounded-2xl bg-white/5 animate-pulse border border-white/5"
+              className="h-56 rounded-xl bg-white/[0.03] animate-pulse border border-white/[0.05]"
             />
           ))}
         {!loading &&
           filtered.map((ward) => (
-            <div key={ward.ward_id} className="midnight-card midnight-card-hover">
+            <div key={ward.ward_id} className="midnight-card hover:border-sky-500/30 transition-all">
               <WardCard
                 ward={{
                   ...ward,

@@ -1,38 +1,98 @@
+# Operating Systems
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+
+# Environment and Local Secrets
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
 # Python
 __pycache__/
 *.py[cod]
+*$py.class
 *.pyd
+*.pyc
+*.pyo
 *.so
 *.egg-info/
+.installed.cfg
+*.egg
 .venv/
 venv/
-.env
+ENV/
+env/
 
-# SQLite
+# Python Testing & Code Quality
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.ruff_cache/
+.mypy_cache/
+
+# Databases & Backups
 *.db
+*.db-shm
+*.db-wal
+*.sqlite
 *.sqlite3
+backend/dengueai_backup.db
 
-# Uploads
+# User Uploads & Media Storage
+uploads/
 /uploads/
+backend/uploads/*
+!backend/uploads/.gitkeep
+!backend/uploads/service_evidence/
+backend/uploads/service_evidence/*
+!backend/uploads/service_evidence/.gitkeep
 
-# Logs
-*.log
-
-# Node
+# Node.js & Web Bundler Artifacts
 node_modules/
+frontend/node_modules/
 dist/
+frontend/dist/
 .vite/
+frontend/.vite/
+.turbo/
+.parcel-cache/
+.next/
+.nuxt/
 
-# OS
-.DS_Store
-Thumbs.db
+# Logs & Debugging
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# Local env files
-frontend/.env
-frontend/.env.local
-frontend/.env.production
-backend/.env
-
-# IDE
+# IDE & Editor Configurations
 .vscode/
+!.vscode/extensions.json
 .idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# Temporary & Scratch Files
+tmp/
+temp/
+*.tmp

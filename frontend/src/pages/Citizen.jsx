@@ -64,73 +64,76 @@ export default function Citizen() {
   }, [leaderboard]);
 
   return (
-    <div className="space-y-5 max-w-[1720px] mx-auto animate-in fade-in">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#1B3654]/60 gap-3">
+    <div className="space-y-4 max-w-[1720px] mx-auto animate-in fade-in duration-200">
+      {/* Action Bar */}
+      <div className="midnight-card p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-white">Community Citizen Reporting Portal</h2>
-          <p className="text-xs text-[#9FB3C9]">
-            Submit photographs of stagnant water, earn civic points, and mobilize municipal vector response
-          </p>
+          <div className="text-xs font-semibold text-white tracking-tight">Community Sentinel Network</div>
+          <div className="text-[11px] text-slate-400">Citizen photographic surveillance and municipal dispatch linkage</div>
         </div>
         <button
           onClick={() => {
             setSelectedWard(selectedWardFromSelect);
             setShowReport(true);
           }}
-          className="midnight-btn-primary flex items-center gap-2 self-start sm:self-auto"
+          className="midnight-btn-primary text-xs py-1.5 px-3 self-start sm:self-auto"
         >
-          <span>📸</span> Submit New Photo Report
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Submit Evidence Photo</span>
         </button>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="midnight-card p-5">
-          <div className="text-[11px] font-semibold uppercase text-[#9FB3C9] tracking-wider">
-            Verified Community Reports
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+        <div className="midnight-card p-4">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+            Verified Reports
           </div>
-          <div className="text-3xl font-extrabold text-white mt-2">
+          <div className="text-2xl font-bold font-mono text-white mt-1">
             {loading ? "..." : impactStats.totalReports}
           </div>
-          <div className="text-xs text-[#33D6A6] mt-1">↑ Active across Dhaka wards</div>
+          <div className="text-[11px] text-emerald-400 mt-1 font-mono">↑ 92% verification rate</div>
         </div>
 
-        <div className="midnight-card p-5">
-          <div className="text-[11px] font-semibold uppercase text-[#9FB3C9] tracking-wider">
-            Civic Points Distributed
+        <div className="midnight-card p-4">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+            Civic Points Awarded
           </div>
-          <div className="text-3xl font-extrabold text-[#46C8E5] mt-2">
+          <div className="text-2xl font-bold font-mono text-sky-400 mt-1">
             {loading ? "..." : impactStats.totalPoints.toLocaleString()}
           </div>
-          <div className="text-xs text-[#9FB3C9] mt-1">Rewarding community vigilantes</div>
+          <div className="text-[11px] text-slate-400 mt-1 font-mono">Community surveillance incentives</div>
         </div>
 
-        <div className="midnight-card p-5">
-          <div className="text-[11px] font-semibold uppercase text-[#9FB3C9] tracking-wider">
+        <div className="midnight-card p-4">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
             Most Active Sector
           </div>
-          <div className="text-3xl font-extrabold text-[#F6BA49] mt-2">
+          <div className="text-2xl font-bold text-white mt-1">
             {impactStats.topWard}
           </div>
-          <div className="text-xs text-[#9FB3C9] mt-1">Rank #1 in source detection</div>
+          <div className="text-[11px] text-amber-400 mt-1 font-mono">Rank #1 source reports</div>
         </div>
       </div>
 
       {/* Main Two-Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
         {/* Left Column: Quick Submit Form + Selected Ward */}
-        <div className="lg:col-span-6 space-y-4">
-          <div className="midnight-card p-5">
-            <h3 className="text-sm font-bold text-white mb-2">Select Your Neighborhood Ward</h3>
-            <p className="text-xs text-[#9FB3C9] mb-4">
-              Choose your ward to review current environmental indicators before uploading evidence
+        <div className="lg:col-span-6 space-y-3.5">
+          <div className="midnight-card p-4">
+            <h3 className="text-xs font-semibold text-white tracking-tight uppercase tracking-wider mb-1">
+              Select Ward Sump Profile
+            </h3>
+            <p className="text-[11px] text-slate-400 mb-3">
+              Review environmental metrics before uploading evidence for that sector
             </p>
 
             <select
               value={reportWardId}
               onChange={(e) => setReportWardId(e.target.value)}
-              className="w-full bg-[#0D1C2E] border border-[#1B3654] text-xs text-white rounded-xl p-3 focus:outline-none focus:border-[#46C8E5] mb-4"
+              className="w-full bg-[#08111D] border border-white/[0.08] text-xs text-white rounded-lg p-2.5 focus:outline-none focus:border-sky-400 mb-3"
             >
               {wardOptions.map((ward) => (
                 <option key={ward.ward_id} value={ward.ward_id}>
@@ -140,7 +143,7 @@ export default function Citizen() {
             </select>
 
             {loadingWards ? (
-              <div className="h-44 rounded-xl bg-white/5 animate-pulse" />
+              <div className="h-44 rounded-xl bg-white/[0.04] animate-pulse" />
             ) : (
               selectedWardFromSelect && (
                 <WardCard
@@ -154,22 +157,18 @@ export default function Citizen() {
             )}
           </div>
 
-          <div className="midnight-card p-5">
-            <h4 className="text-xs font-bold text-[#46C8E5] uppercase tracking-wider mb-2">
-              How Gamified Points Work
+          <div className="midnight-card p-4">
+            <h4 className="text-xs font-semibold text-white uppercase tracking-wider mb-2">
+              Civic Protocol Rewards
             </h4>
-            <div className="space-y-2 text-xs text-[#9FB3C9]">
-              <div className="flex items-start gap-2">
-                <span className="text-[#33D6A6] font-bold">+25 pts</span>
-                <span>Submit photo of open container or clogged rooftop drain</span>
+            <div className="space-y-1.5 text-xs text-slate-300">
+              <div className="flex items-start gap-2.5 p-2 rounded-md bg-[#08111D] border border-white/[0.04]">
+                <span className="text-emerald-400 font-mono font-bold text-[11px]">+25 pts</span>
+                <span className="text-[11px]">Submit geo-tagged evidence photo of open container or stagnant water</span>
               </div>
-              <div className="flex items-start gap-2">
-                <span className="text-[#46C8E5] font-bold">+50 pts</span>
-                <span>Field crew dispatched and resolves the reported hazard</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-[#9B83F5] font-bold">Badge</span>
-                <span>Reach Top 10 in your ward for Dhaka Health Champion recognition</span>
+              <div className="flex items-start gap-2.5 p-2 rounded-md bg-[#08111D] border border-white/[0.04]">
+                <span className="text-sky-400 font-mono font-bold text-[11px]">+50 pts</span>
+                <span className="text-[11px]">Municipal field team confirms and completes Bti larvicide treatment</span>
               </div>
             </div>
           </div>
@@ -177,45 +176,48 @@ export default function Citizen() {
 
         {/* Right Column: Leaderboard Table */}
         <div className="lg:col-span-6">
-          <div className="midnight-card p-5">
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#1B3654]/60">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <span>🏆</span> Citywide Citizen Leaderboard
-              </h3>
-              <span className="text-[10px] text-[#9FB3C9]">Updated hourly</span>
+          <div className="midnight-card p-4">
+            <div className="flex items-center justify-between pb-3 mb-2.5 border-b border-white/[0.07]">
+              <div>
+                <h3 className="text-xs font-semibold text-white tracking-tight uppercase tracking-wider">
+                  Citywide Citizen Leaderboard
+                </h3>
+                <div className="text-[10px] text-slate-400">Validated report counts per ward</div>
+              </div>
+              <span className="text-[10px] font-mono text-slate-400">Hourly sync</span>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="text-[#9FB3C9] border-b border-[#1B3654]/40">
-                    <th className="pb-2 font-semibold">Rank</th>
-                    <th className="pb-2 font-semibold">Ward Area</th>
-                    <th className="pb-2 font-semibold">Reports</th>
-                    <th className="pb-2 font-semibold text-right">Points</th>
+                  <tr className="text-slate-400 border-b border-white/[0.06] text-[10px] font-mono uppercase tracking-wider">
+                    <th className="pb-2 font-medium w-12">Rank</th>
+                    <th className="pb-2 font-medium">Ward Sector</th>
+                    <th className="pb-2 font-medium">Reports</th>
+                    <th className="pb-2 font-medium text-right">Points</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#1B3654]/30">
+                <tbody className="divide-y divide-white/[0.04]">
                   {leaderboard.map((row) => (
                     <tr key={row.rank} className="hover:bg-white/[0.02] transition-colors">
-                      <td className="py-2.5 font-bold text-white">
+                      <td className="py-2.5 font-mono">
                         <span
-                          className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] ${
+                          className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-mono font-bold ${
                             row.rank === 1
-                              ? "bg-[#F6BA49] text-[#0C1829] font-black"
+                              ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
                               : row.rank === 2
-                              ? "bg-slate-300 text-[#0C1829] font-black"
+                              ? "bg-slate-300/20 text-slate-200 border border-slate-300/30"
                               : row.rank === 3
-                              ? "bg-[#9B83F5] text-white font-black"
-                              : "bg-[#1B3654] text-[#9FB3C9]"
+                              ? "bg-sky-500/20 text-sky-300 border border-sky-500/30"
+                              : "text-slate-400"
                           }`}
                         >
-                          {row.rank}
+                          #{row.rank}
                         </span>
                       </td>
-                      <td className="py-2.5 font-medium text-white">{row.ward_name}</td>
-                      <td className="py-2.5 text-[#9FB3C9]">{row.reports}</td>
-                      <td className="py-2.5 text-right font-mono font-bold text-[#33D6A6]">
+                      <td className="py-2.5 font-medium text-slate-200">{row.ward_name}</td>
+                      <td className="py-2.5 text-slate-400 font-mono text-[11px]">{row.reports}</td>
+                      <td className="py-2.5 text-right font-mono font-bold text-emerald-400">
                         {row.points}
                       </td>
                     </tr>

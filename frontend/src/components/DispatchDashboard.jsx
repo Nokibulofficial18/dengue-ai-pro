@@ -82,25 +82,25 @@ export default function DispatchDashboard() {
   };
 
   return (
-    <div className="midnight-card p-5">
+    <div className="midnight-card p-4">
       {/* Top Summary Bar */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pb-4 mb-4 border-b border-[#1B3654]/60">
-        <div className="flex items-center gap-3 flex-wrap">
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#4A1B28] text-[#F45B79] border border-[#F45B79]/40">
-            {summary.critical} Critical Wards
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pb-3 mb-3 border-b border-white/[0.07]">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="px-2.5 py-1 rounded text-xs font-mono font-medium bg-rose-500/10 text-rose-400 border border-rose-500/25">
+            {summary.critical} Critical Sectors
           </span>
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#162E4D] text-[#46C8E5] border border-[#46C8E5]/40">
+          <span className="px-2.5 py-1 rounded text-xs font-mono font-medium bg-sky-500/10 text-sky-400 border border-sky-500/25">
             {summary.officers} Officers Required
           </span>
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#133830] text-[#33D6A6] border border-[#33D6A6]/40">
-            {summary.larvicide.toFixed(1)} L Larvicide (Bti)
+          <span className="px-2.5 py-1 rounded text-xs font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">
+            {summary.larvicide.toFixed(1)} L Bti Larvicide
           </span>
         </div>
-        <div className="flex items-center gap-2 text-xs text-[#9FB3C9]">
-          <span>Sync in {countdown}s</span>
+        <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
+          <span>Auto-sync in {countdown}s</span>
           <button
             onClick={fetchQueue}
-            className="p-1.5 rounded-lg bg-[#0D1C2E] border border-[#1B3654] text-[#46C8E5] hover:bg-[#172C45] transition"
+            className="p-1 rounded bg-[#08111D] border border-white/[0.08] text-slate-400 hover:text-white transition"
             title="Refresh queue"
           >
             ↻
@@ -109,23 +109,23 @@ export default function DispatchDashboard() {
       </div>
 
       {/* Orders Table */}
-      <div className="overflow-x-auto rounded-xl border border-[#1B3654]/60">
+      <div className="overflow-x-auto rounded-lg border border-white/[0.07]">
         <table className="w-full text-left text-xs">
-          <thead className="bg-[#172C45]/80 text-[#9FB3C9]">
+          <thead className="bg-[#0E1827] text-slate-400 text-[10px] font-mono uppercase tracking-wider">
             <tr>
-              <th className="p-3 font-semibold">Priority</th>
-              <th className="p-3 font-semibold">Ward</th>
-              <th className="p-3 font-semibold">SWAPI Risk</th>
-              <th className="p-3 font-semibold">Team Size</th>
-              <th className="p-3 font-semibold">Larvicide</th>
-              <th className="p-3 font-semibold">Status</th>
-              <th className="p-3 font-semibold text-right">Actions</th>
+              <th className="p-2.5 font-medium w-12">Tier</th>
+              <th className="p-2.5 font-medium">Ward Sector</th>
+              <th className="p-2.5 font-medium">Risk Score</th>
+              <th className="p-2.5 font-medium">Squad Strength</th>
+              <th className="p-2.5 font-medium">Bti Dosage</th>
+              <th className="p-2.5 font-medium">Status</th>
+              <th className="p-2.5 font-medium text-right">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#1B3654]/40 bg-[#0D1C2E]/40">
+          <tbody className="divide-y divide-white/[0.04] bg-[#0A121F]">
             {loading ? (
               <tr>
-                <td colSpan={7} className="p-6 text-center text-[#9FB3C9]">
+                <td colSpan={7} className="p-6 text-center text-slate-400">
                   Loading field dispatch recommendations...
                 </td>
               </tr>
@@ -138,83 +138,83 @@ export default function DispatchDashboard() {
                 return (
                   <Fragment key={order.ward_id}>
                     <tr
-                      className={`hover:bg-white/[0.03] transition-colors cursor-pointer ${
-                        newOrders[order.ward_id] ? "bg-[#46C8E5]/10" : ""
+                      className={`hover:bg-white/[0.02] transition-colors cursor-pointer ${
+                        newOrders[order.ward_id] ? "bg-sky-500/10" : ""
                       }`}
                       onClick={() => toggleExpand(order.ward_id)}
                     >
-                      <td className="p-3 font-bold text-white">
-                        <span className="w-6 h-6 rounded-md bg-[#1B3654] text-[#46C8E5] inline-flex items-center justify-center font-mono">
+                      <td className="p-2.5 font-mono text-slate-400">
+                        <span className="w-5 h-5 rounded bg-white/[0.05] text-sky-400 inline-flex items-center justify-center font-mono text-[10px]">
                           #{order.priority_rank || idx + 1}
                         </span>
                       </td>
-                      <td className="p-3 font-bold text-white">
-                        {order.ward_name} <span className="text-[10px] text-[#9FB3C9] font-normal">({order.ward_id})</span>
+                      <td className="p-2.5 font-medium text-slate-100">
+                        {order.ward_name} <span className="text-[10px] text-slate-400 font-mono">({order.ward_id})</span>
                       </td>
-                      <td className="p-3">
+                      <td className="p-2.5">
                         <span
-                          className={`font-mono font-bold px-2 py-0.5 rounded text-[11px] ${
-                            isCritical ? "bg-[#F45B79]/20 text-[#F45B79]" : "bg-[#F6BA49]/20 text-[#F6BA49]"
+                          className={`font-mono font-semibold px-2 py-0.5 rounded text-[10px] ${
+                            isCritical ? "bg-rose-500/10 text-rose-400 border border-rose-500/25" : "bg-amber-500/10 text-amber-400 border border-amber-500/25"
                           }`}
                         >
                           {(order.swapi_score || 0).toFixed(2)}
                         </span>
                       </td>
-                      <td className="p-3 text-white">
+                      <td className="p-2.5 text-slate-200 font-mono text-[11px]">
                         {order.officer_count || order.recommended_officers || 2} Officers
                       </td>
-                      <td className="p-3 text-[#33D6A6] font-mono font-semibold">
+                      <td className="p-2.5 text-emerald-400 font-mono font-medium text-[11px]">
                         {order.larvicide_litres ? `${order.larvicide_litres} L` : "12.0 L"}
                       </td>
-                      <td className="p-3">
+                      <td className="p-2.5">
                         <span
-                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                          className={`px-2 py-0.5 rounded text-[10px] font-mono font-medium ${
                             isConfirmed
-                              ? "bg-[#133830] text-[#33D6A6] border border-[#33D6A6]/40"
-                              : "bg-[#4A3515] text-[#F6BA49] border border-[#F6BA49]/40"
+                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/25"
+                              : "bg-amber-500/10 text-amber-400 border border-amber-500/25"
                           }`}
                         >
                           {isConfirmed ? "Confirmed" : "Pending"}
                         </span>
                       </td>
-                      <td className="p-3 text-right" onClick={(e) => e.stopPropagation()}>
+                      <td className="p-2.5 text-right" onClick={(e) => e.stopPropagation()}>
                         {!isConfirmed ? (
                           <button
                             onClick={() => confirmDispatch(order.ward_id)}
-                            className="midnight-btn-primary text-xs py-1 px-3"
+                            className="midnight-btn-primary text-xs py-1 px-2.5"
                           >
-                            Dispatch Crew
+                            Dispatch
                           </button>
                         ) : (
-                          <span className="text-[11px] text-[#33D6A6] font-semibold">
+                          <span className="text-[11px] text-emerald-400 font-mono font-medium">
                             ✓ Dispatched
                           </span>
                         )}
                       </td>
                     </tr>
 
-                    {/* Expanded Detail Row */}
+                    {/* Expanded Detail Accordion */}
                     {isExpanded && (
-                      <tr className="bg-[#172C45]/50 border-t border-b border-[#1B3654]/40">
-                        <td colSpan={7} className="p-4 space-y-2">
+                      <tr className="bg-[#0E1827] border-t border-b border-white/[0.06]">
+                        <td colSpan={7} className="p-3.5 space-y-2">
                           <div>
-                            <span className="text-[10px] uppercase font-bold text-[#46C8E5] tracking-wider">
-                              Target Sector &amp; Focus:
+                            <span className="text-[10px] uppercase font-mono font-semibold text-sky-400 tracking-wider">
+                              Target Sector &amp; Focus Area:
                             </span>
-                            <p className="text-xs text-white mt-0.5">
+                            <p className="text-xs text-slate-200 mt-0.5">
                               {order.target_sector || "High-risk residential storm drains and open construction sumps."}
                             </p>
                           </div>
                           <div>
-                            <span className="text-[10px] uppercase font-bold text-[#9FB3C9] tracking-wider">
+                            <span className="text-[10px] uppercase font-mono font-semibold text-slate-400 tracking-wider">
                               Clinical RAG Reasoning:
                             </span>
-                            <p className="text-xs text-slate-300 mt-0.5 italic">
+                            <p className="text-xs text-slate-300 mt-0.5 font-mono italic">
                               "{order.reasoning || "Elevated rainfall and drainage coefficients trigger priority source reduction under WHO guideline."}"
                             </p>
                           </div>
                           {order.rag_citation && (
-                            <div className="text-[11px] text-[#33D6A6]">
+                            <div className="text-[10px] text-emerald-400 font-mono">
                               <span className="font-semibold">Citation:</span> {order.rag_citation}
                             </div>
                           )}

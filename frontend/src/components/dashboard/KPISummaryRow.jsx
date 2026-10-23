@@ -14,7 +14,6 @@ export default function KPISummaryRow() {
   });
 
   useEffect(() => {
-    // Attempt to load live summary from backend if available
     axios
       .get(`${API_URL}/api/swapi/stats/summary`)
       .then((res) => {
@@ -28,174 +27,90 @@ export default function KPISummaryRow() {
         }
       })
       .catch(() => {
-        // High fidelity baseline values remain
+        // Fallback baseline maintained
       });
   }, []);
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-      {/* 1. High-Risk Wards */}
-      <div className="midnight-card p-5 flex flex-col justify-between">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#4A1B28] border border-[#F45B79]/30 flex items-center justify-center text-[#F45B79] shadow-md shadow-[#F45B79]/10">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <div>
-              <div className="text-xs font-medium text-[#9FB3C9] flex items-center gap-1">
-                <span>High-Risk Wards</span>
-                <span className="cursor-help opacity-70 hover:opacity-100" title="Wards with SWAPI score > 0.70">ⓘ</span>
-              </div>
-              <div className="text-2xl lg:text-[28px] font-bold text-white mt-1 leading-none">
-                {stats.highRiskWards} <span className="text-sm font-normal text-[#9FB3C9]">of {stats.totalWards}</span>
-              </div>
-            </div>
+    <div className="midnight-card p-4 sm:p-5 border-white/[0.09] bg-gradient-to-r from-[#101D30] via-[#14243B] to-[#101D30]">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-center">
+        {/* Left Column: Primary Outbreak Insight (Command Hero) */}
+        <div className="lg:col-span-7 xl:col-span-7 flex flex-col justify-between space-y-2.5">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-500/10 text-rose-400 border border-rose-500/25">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+              HIGH ALERT · OUTBREAK SURGE
+            </span>
+            <span className="text-[11px] font-mono text-slate-400">
+              Citywide Vector Risk: <strong className="text-white font-bold">{stats.riskIndex.toFixed(2)} SWAPI</strong> (+0.15 uptick)
+            </span>
           </div>
 
-          {/* Micro bar chart (Red) */}
-          <div className="flex items-end gap-1 h-9 pt-2">
-            {[40, 60, 45, 80, 50, 95, 75, 100].map((h, i) => (
-              <div
-                key={i}
-                className="w-1.5 rounded-t-sm bg-[#F45B79] opacity-80 hover:opacity-100 transition-opacity"
-                style={{ height: `${h}%` }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-3 pt-2 text-[11px] font-medium text-[#F45B79] flex items-center gap-1">
-          <span>↑</span>
-          <span>+3 from last week</span>
-        </div>
-      </div>
-
-      {/* 2. Citizen Reports (7 days) */}
-      <div className="midnight-card p-5 flex flex-col justify-between">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#162E4D] border border-[#46C8E5]/30 flex items-center justify-center text-[#46C8E5] shadow-md shadow-[#46C8E5]/10">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-              </svg>
-            </div>
-            <div>
-              <div className="text-xs font-medium text-[#9FB3C9] flex items-center gap-1">
-                <span>Citizen Reports (7 days)</span>
-                <span className="cursor-help opacity-70 hover:opacity-100" title="Verified community reports of stagnant water">ⓘ</span>
-              </div>
-              <div className="text-2xl lg:text-[28px] font-bold text-white mt-1 leading-none">
-                {stats.citizenReports}
-              </div>
-            </div>
+          <div>
+            <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
+              {stats.highRiskWards} of {stats.totalWards} Monitored Sectors Exceed Critical Vector Threshold
+            </h2>
+            <p className="text-xs text-slate-300 mt-1 leading-relaxed max-w-2xl">
+              Rapid Aedes aegypti breeding velocity detected following 42mm precipitation. Mirpur (0.91) and Lalbagh (0.93) require immediate chemical larvicide application and construction sump drainage.
+            </p>
           </div>
 
-          {/* Micro bar chart (Cyan) */}
-          <div className="flex items-end gap-1 h-9 pt-2">
-            {[30, 45, 60, 50, 70, 65, 85, 95].map((h, i) => (
-              <div
-                key={i}
-                className="w-1.5 rounded-t-sm bg-[#46C8E5] opacity-80 hover:opacity-100 transition-opacity"
-                style={{ height: `${h}%` }}
-              />
-            ))}
+          <div className="pt-1 flex items-center gap-3">
+            <a
+              href="/authority"
+              className="midnight-btn-primary text-xs py-1.5 px-3 flex items-center gap-1.5"
+            >
+              <span>Mobilize Field Squads</span>
+              <span>→</span>
+            </a>
+            <span className="text-[11px] font-mono text-slate-400">
+              DGHS Protocol WHO-2024 active
+            </span>
           </div>
         </div>
 
-        <div className="mt-3 pt-2 text-[11px] font-medium text-[#33D6A6] flex items-center gap-1">
-          <span>↑</span>
-          <span>+18% from previous week</span>
-        </div>
-      </div>
-
-      {/* 3. Active Field Teams */}
-      <div className="midnight-card p-5 flex flex-col justify-between">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#133830] border border-[#33D6A6]/30 flex items-center justify-center text-[#33D6A6] shadow-md shadow-[#33D6A6]/10">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
+        {/* Right Column: Supporting Metrics with Deliberate Density */}
+        <div className="lg:col-span-5 xl:col-span-5 grid grid-cols-3 gap-3 border-t lg:border-t-0 lg:border-l border-white/[0.08] pt-4 lg:pt-0 lg:pl-6">
+          {/* Metric 1: Critical Sectors */}
+          <div className="space-y-1">
+            <div className="text-[10px] uppercase font-mono tracking-wider text-slate-400">
+              Critical
             </div>
-            <div>
-              <div className="text-xs font-medium text-[#9FB3C9] flex items-center gap-1">
-                <span>Active Field Teams</span>
-                <span className="cursor-help opacity-70 hover:opacity-100" title="Inspection and larviciding squads currently on site">ⓘ</span>
-              </div>
-              <div className="text-2xl lg:text-[28px] font-bold text-white mt-1 leading-none">
-                {stats.activeTeams} <span className="text-sm font-normal text-[#9FB3C9]">of {stats.totalTeams}</span>
-              </div>
+            <div className="text-xl sm:text-2xl font-bold font-mono text-white tracking-tight">
+              {stats.highRiskWards}
+              <span className="text-xs text-slate-500 font-mono font-normal">/{stats.totalWards}</span>
+            </div>
+            <div className="text-[10px] text-rose-400 font-mono">
+              SWAPI &gt; 0.70
             </div>
           </div>
 
-          {/* Micro bar chart (Green) */}
-          <div className="flex items-end gap-1 h-9 pt-2">
-            {[50, 60, 55, 75, 80, 70, 90, 100].map((h, i) => (
-              <div
-                key={i}
-                className="w-1.5 rounded-t-sm bg-[#33D6A6] opacity-80 hover:opacity-100 transition-opacity"
-                style={{ height: `${h}%` }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-3 pt-2 text-[11px] font-medium text-[#33D6A6] flex items-center gap-1">
-          <span>↑</span>
-          <span>2 more teams deployed</span>
-        </div>
-      </div>
-
-      {/* 4. Predicted Risk Index */}
-      <div className="midnight-card p-5 flex flex-col justify-between">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#2A1E4A] border border-[#9B83F5]/30 flex items-center justify-center text-[#9B83F5] shadow-md shadow-[#9B83F5]/10">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-              </svg>
+          {/* Metric 2: Citizen Reports */}
+          <div className="space-y-1 border-l border-white/[0.06] pl-3">
+            <div className="text-[10px] uppercase font-mono tracking-wider text-slate-400">
+              Civic Intake
             </div>
-            <div>
-              <div className="text-xs font-medium text-[#9FB3C9] flex items-center gap-1">
-                <span>Predicted Risk Index</span>
-                <span className="cursor-help opacity-70 hover:opacity-100" title="Citywide composite SWAPI risk projection">ⓘ</span>
-              </div>
-              <div className="text-2xl lg:text-[28px] font-bold text-white mt-1 leading-none">
-                {stats.riskIndex.toFixed(2)}
-              </div>
+            <div className="text-xl sm:text-2xl font-bold font-mono text-white tracking-tight">
+              {stats.citizenReports}
+            </div>
+            <div className="text-[10px] text-emerald-400 font-mono">
+              92% verified
             </div>
           </div>
 
-          {/* Micro line curve (Violet) */}
-          <div className="h-9 w-20 pt-1">
-            <svg className="w-full h-full overflow-visible" viewBox="0 0 80 30" fill="none">
-              <path
-                d="M0 25 C 20 22, 35 15, 50 12 C 65 9, 75 4, 80 2"
-                stroke="#9B83F5"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-              <path
-                d="M0 25 C 20 22, 35 15, 50 12 C 65 9, 75 4, 80 2 L 80 30 L 0 30 Z"
-                fill="url(#violet-fade)"
-                opacity="0.25"
-              />
-              <circle cx="80" cy="2" r="2.5" fill="#9B83F5" />
-              <defs>
-                <linearGradient id="violet-fade" x1="0" y1="0" x2="0" y2="1">
-                  <stop stopColor="#9B83F5" />
-                  <stop offset="1" stopColor="#9B83F5" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-            </svg>
+          {/* Metric 3: Active Squads */}
+          <div className="space-y-1 border-l border-white/[0.06] pl-3">
+            <div className="text-[10px] uppercase font-mono tracking-wider text-slate-400">
+              Squads Active
+            </div>
+            <div className="text-xl sm:text-2xl font-bold font-mono text-white tracking-tight">
+              {stats.activeTeams}
+              <span className="text-xs text-slate-500 font-mono font-normal">/{stats.totalTeams}</span>
+            </div>
+            <div className="text-[10px] text-sky-400 font-mono">
+              67% deployed
+            </div>
           </div>
-        </div>
-
-        <div className="mt-3 pt-2 text-[11px] font-medium text-[#9B83F5] flex items-center gap-1">
-          <span>↑</span>
-          <span>+0.15 from last week</span>
         </div>
       </div>
     </div>

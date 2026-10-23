@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import axios from "axios";
 
 import AppShell from "./components/layout/AppShell.jsx";
+import PublicOverview from "./pages/PublicOverview.jsx";
 import HealthIntelligence from "./pages/HealthIntelligence.jsx";
 import Authority from "./pages/Authority.jsx";
 import Citizen from "./pages/Citizen.jsx";
@@ -36,8 +37,10 @@ export default function App() {
     <BrowserRouter>
       <AppShell backendOnline={backendOnline}>
         <Routes>
-          {/* Default Route: Midnight Ocean Health Intelligence Center */}
-          <Route path="/" element={<HealthIntelligence />} />
+          {/* Public Overview: Citizen & Public Health Surveillance View */}
+          <Route path="/" element={<PublicOverview />} />
+
+          {/* Health Intelligence Center: Clinical, Epidemiological & Dispatch Center */}
           <Route path="/intelligence" element={<HealthIntelligence />} />
 
           {/* Core Preserved Routes */}
@@ -58,6 +61,7 @@ export default function App() {
           <Route path="/repair-planning" element={<RepairPlanning />} />
           <Route path="/authority/coordination" element={<MultiPropertyCoordination />} />
           <Route path="/coordination" element={<MultiPropertyCoordination />} />
+          <Route path="/multi-property" element={<MultiPropertyCoordination />} />
         </Routes>
       </AppShell>
     </BrowserRouter>

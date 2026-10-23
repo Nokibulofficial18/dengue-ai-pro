@@ -15,18 +15,25 @@ export default function LLMChat() {
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      content: "Hello Officer. I am the DengueAI Pro RAG intelligence assistant. Ask me about ward risk scores, larviciding protocols, or DGHS clinical guidelines.",
-      source: "WHO / DGHS Knowledge Base",
+      content: "Hello Officer. I am the DengueAI Pro clinical protocol assistant. Ask me about ward risk scores, larviciding protocols, or DGHS clinical guidelines.",
+      source: "WHO / DGHS Protocol Registry",
       timestamp: "Just now",
     },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [copiedIdx, setCopiedIdx] = useState(null);
   const endRef = useRef(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
+
+  const copyToClipboard = (text, idx) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIdx(idx);
+    setTimeout(() => setCopiedIdx(null), 2000);
+  };
 
   const sendMessage = async (content) => {
     if (!content.trim()) return;
@@ -74,7 +81,7 @@ export default function LLMChat() {
           <button
             key={text}
             onClick={() => sendMessage(text)}
-            className="rounded-full bg-[#162E4D] text-[#46C8E5] border border-[#46C8E5]/30 hover:bg-[#1B3654] px-2.5 py-1 text-[11px] font-medium transition"
+            className="rounded-md bg-[#08111D] text-sky-400 border border-white/[0.08] hover:border-sky-400/40 hover:bg-[#0E1827] px-2.5 py-1 text-[11px] font-mono transition"
           >
             {text}
           </button>
@@ -82,63 +89,63 @@ export default function LLMChat() {
       </div>
 
       {/* Messages Feed */}
-      <div className="flex-1 overflow-y-auto space-y-3 pr-1 max-h-[380px] min-h-[220px]">
+      <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 max-h-[360px] min-h-[220px]">
         {messages.map((msg, idx) => (
           <div
             key={`${msg.role}-${idx}`}
-            className={`max-w-[88%] rounded-2xl p-3 text-xs leading-relaxed ${
+            className={`max-w-[85%] rounded-xl p-3 text-xs leading-relaxed ${
               msg.role === "user"
-                ? "ml-auto bg-[#1E6FD9] text-white shadow-md shadow-[#1E6FD9]/20"
-                : "bg-[#172C45] border border-[#1B3654] text-slate-100"
+                ? "ml-auto bg-sky-600 text-white shadow-sm"
+                : "bg-[#0E1827] border border-white/[0.07] text-slate-200"
             }`}
           >
-            <div className="whitespace-pre-line">{msg.content}</div>
-            <div className="mt-1.5 pt-1 border-t border-white/10 text-[9px] text-[#9FB3C9] flex items-center justify-between">
+            <div className="whitespace-pre-line font-sans">{msg.content}</div>
+            <div className="mt-2 pt-1.5 border-t border-white/[0.08] text-[10px] text-slate-400 font-mono flex items-center justify-between">
               <span>{msg.timestamp} {msg.source ? `• ${msg.source}` : ""}</span>
               {msg.role === "assistant" && (
                 <button
-                  onClick={() => navigator.clipboard.writeText(msg.content)}
-                  className="text-[#46C8E5] hover:underline"
+                  onClick={() => copyToClipboard(msg.content, idx)}
+                  className="hover:text-white transition-colors"
                 >
-                  Copy
+                  {copiedIdx === idx ? "Copied ✓" : "Copy"}
                 </button>
               )}
             </div>
           </div>
         ))}
+
         {loading && (
-          <div className="max-w-[60%] rounded-2xl bg-[#172C45] border border-[#1B3654] p-3 text-xs text-[#46C8E5]">
-            <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#46C8E5] animate-ping" />
-              <span>Consulting WHO vector guidelines...</span>
-            </span>
+          <div className="bg-[#0E1827] border border-white/[0.07] rounded-xl p-3 text-xs text-sky-400 max-w-[50%] flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-sky-400 animate-ping" />
+            <span className="font-mono text-[11px]">Synthesizing clinical protocol...</span>
           </div>
         )}
         <div ref={endRef} />
       </div>
 
-      {/* Input box */}
-      <div className="mt-3 pt-3 border-t border-[#1B3654]/60 flex items-center gap-2">
-        <textarea
+      {/* Input */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          sendMessage(input);
+        }}
+        className="mt-3 pt-2.5 border-t border-white/[0.07] flex items-center gap-2"
+      >
+        <input
+          type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              sendMessage(input);
-            }
-          }}
-          rows={1}
-          placeholder="Ask RAG about SWAPI risk or protocols..."
-          className="flex-1 bg-[#0D1C2E] border border-[#1B3654] text-xs text-white rounded-xl px-3 py-2 outline-none focus:border-[#46C8E5] transition resize-none placeholder-[#9FB3C9]/60"
+          placeholder="Ask clinical or vector protocol question..."
+          className="flex-1 midnight-input text-xs"
         />
         <button
-          onClick={() => sendMessage(input)}
-          className="midnight-btn-primary py-2 px-3.5 text-xs shrink-0"
+          type="submit"
+          disabled={!input.trim() || loading}
+          className="midnight-btn-primary px-3 py-1.5 text-xs"
         >
           Send
         </button>
-      </div>
+      </form>
     </div>
   );
 }
