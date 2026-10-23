@@ -51,7 +51,7 @@ def normalize_temp_range(temp_max: float, temp_min: float) -> float:
 
 
 def get_risk_level(score: float) -> str:
-    if score < -0.3:
+    if score < 0.3:
         return "low"
     if score < 0.5:
         return "moderate"
@@ -61,7 +61,7 @@ def get_risk_level(score: float) -> str:
 
 
 def get_risk_color(score: float) -> str:
-    if score < -0.3:
+    if score < 0.3:
         return "#1E6B2E"
     if score < 0.5:
         return "#E8A020"

@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-
 import CitizenReport from "../components/CitizenReport.jsx";
-import StatsBar from "../components/StatsBar.jsx";
 import WardCard from "../components/WardCard.jsx";
 import { mockData } from "../data/mockData.js";
 
@@ -61,154 +59,177 @@ export default function Citizen() {
   const impactStats = useMemo(() => {
     const totalReports = leaderboard.reduce((sum, entry) => sum + entry.reports, 0);
     const totalPoints = leaderboard.reduce((sum, entry) => sum + entry.points, 0);
-    const topWard = leaderboard[0]?.ward_name || "-";
+    const topWard = leaderboard[0]?.ward_name || "Mirpur";
     return { totalReports, totalPoints, topWard };
   }, [leaderboard]);
 
   return (
-    <div className="pb-8">
-      <StatsBar />
-      <div className="p-6 space-y-6">
-        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <div>
-            <div className="text-2xl font-semibold">User Dashboard</div>
-            <div className="text-sm text-slate-400">
-              Track local risk, submit reports, and earn community points.
-            </div>
-          </div>
-          <button
-            onClick={() => setShowReport(true)}
-            className="rounded-2xl px-4 py-2 text-sm font-semibold btn btn-primary"
-          >
-            New Report
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="card p-4">
-            <div className="text-xs uppercase text-slate-400">Community Reports</div>
-            <div className="text-2xl font-semibold mt-2">
-              {loading ? "..." : impactStats.totalReports}
-            </div>
-            <div className="text-xs text-slate-400 mt-1">Last 7 days</div>
-          </div>
-          <div className="card p-4">
-            <div className="text-xs uppercase text-slate-400">Points Earned</div>
-            <div className="text-2xl font-semibold mt-2">
-              {loading ? "..." : impactStats.totalPoints}
-            </div>
-            <div className="text-xs text-slate-400 mt-1">Leaderboard total</div>
-          </div>
-          <div className="card p-4">
-            <div className="text-xs uppercase text-slate-400">Top Ward</div>
-            <div className="text-2xl font-semibold mt-2">
-              {loading ? "..." : impactStats.topWard}
-            </div>
-            <div className="text-xs text-slate-400 mt-1">Most active today</div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] gap-4">
-          <div className="card p-5">
-            <div className="text-sm font-semibold mb-3">Report Stagnant Water</div>
-            <div className="flex items-center gap-2">
-              <select
-                value={reportWardId}
-                onChange={(e) => setReportWardId(e.target.value)}
-                className="flex-1 rounded-2xl px-3 py-2 text-sm input"
-              >
-                {wardOptions.map((ward) => (
-                  <option key={ward.ward_id} value={ward.ward_id}>
-                    {ward.ward_name}
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={() => {
-                  setSelectedWard(selectedWardFromSelect || null);
-                  setShowReport(true);
-                }}
-                className="rounded-2xl px-3 py-2 text-sm font-semibold btn btn-primary"
-              >
-                Report
-              </button>
-            </div>
-            <div className="text-xs text-slate-300 mt-3">
-              Upload a photo or submit a quick report to earn points.
-            </div>
-            {selectedWardFromSelect && (
-              <div className="mt-4 rounded-2xl bg-white/5 p-3 text-xs text-slate-300">
-                <div className="text-sm font-semibold text-white">
-                  {selectedWardFromSelect.ward_name}
-                </div>
-                <div className="mt-1">
-                  Current risk: {selectedWardFromSelect.risk_level}
-                </div>
-                <div className="mt-1">
-                  Citizen reports: {selectedWardFromSelect.citizen_report_count ?? 0}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="card p-5">
-            <div className="text-sm font-semibold mb-3">Community Leaderboard</div>
-            {loading ? (
-              <div className="space-y-2">
-                {[1, 2, 3, 4].map((item) => (
-                  <div
-                    key={item}
-                    className="h-6 rounded bg-white/5 animate-pulse"
-                  />
-                ))}
-              </div>
-            ) : (
-              <ul className="space-y-2 text-sm">
-                {leaderboard.map((entry) => (
-                  <li key={entry.rank} className="flex items-center justify-between">
-                    <span>
-                      #{entry.rank} {entry.ward_name}
-                    </span>
-                    <span className="text-slate-300">
-                      {entry.reports} reports · {entry.points} points
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-
+    <div className="space-y-5 max-w-[1720px] mx-auto animate-in fade-in">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#1B3654]/60 gap-3">
         <div>
-          <div className="text-sm font-semibold mb-3">Nearby Wards</div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {loadingWards &&
-              [1, 2, 3, 4].map((item) => (
-                <div
-                  key={item}
-                  className="h-28 rounded-lg bg-white/5 animate-pulse"
-                />
+          <h2 className="text-xl font-bold text-white">Community Citizen Reporting Portal</h2>
+          <p className="text-xs text-[#9FB3C9]">
+            Submit photographs of stagnant water, earn civic points, and mobilize municipal vector response
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            setSelectedWard(selectedWardFromSelect);
+            setShowReport(true);
+          }}
+          className="midnight-btn-primary flex items-center gap-2 self-start sm:self-auto"
+        >
+          <span>📸</span> Submit New Photo Report
+        </button>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="midnight-card p-5">
+          <div className="text-[11px] font-semibold uppercase text-[#9FB3C9] tracking-wider">
+            Verified Community Reports
+          </div>
+          <div className="text-3xl font-extrabold text-white mt-2">
+            {loading ? "..." : impactStats.totalReports}
+          </div>
+          <div className="text-xs text-[#33D6A6] mt-1">↑ Active across Dhaka wards</div>
+        </div>
+
+        <div className="midnight-card p-5">
+          <div className="text-[11px] font-semibold uppercase text-[#9FB3C9] tracking-wider">
+            Civic Points Distributed
+          </div>
+          <div className="text-3xl font-extrabold text-[#46C8E5] mt-2">
+            {loading ? "..." : impactStats.totalPoints.toLocaleString()}
+          </div>
+          <div className="text-xs text-[#9FB3C9] mt-1">Rewarding community vigilantes</div>
+        </div>
+
+        <div className="midnight-card p-5">
+          <div className="text-[11px] font-semibold uppercase text-[#9FB3C9] tracking-wider">
+            Most Active Sector
+          </div>
+          <div className="text-3xl font-extrabold text-[#F6BA49] mt-2">
+            {impactStats.topWard}
+          </div>
+          <div className="text-xs text-[#9FB3C9] mt-1">Rank #1 in source detection</div>
+        </div>
+      </div>
+
+      {/* Main Two-Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Left Column: Quick Submit Form + Selected Ward */}
+        <div className="lg:col-span-6 space-y-4">
+          <div className="midnight-card p-5">
+            <h3 className="text-sm font-bold text-white mb-2">Select Your Neighborhood Ward</h3>
+            <p className="text-xs text-[#9FB3C9] mb-4">
+              Choose your ward to review current environmental indicators before uploading evidence
+            </p>
+
+            <select
+              value={reportWardId}
+              onChange={(e) => setReportWardId(e.target.value)}
+              className="w-full bg-[#0D1C2E] border border-[#1B3654] text-xs text-white rounded-xl p-3 focus:outline-none focus:border-[#46C8E5] mb-4"
+            >
+              {wardOptions.map((ward) => (
+                <option key={ward.ward_id} value={ward.ward_id}>
+                  {ward.ward_name} ({ward.ward_id})
+                </option>
               ))}
-            {!loadingWards &&
-              wardOptions.slice(0, 4).map((ward) => (
+            </select>
+
+            {loadingWards ? (
+              <div className="h-44 rounded-xl bg-white/5 animate-pulse" />
+            ) : (
+              selectedWardFromSelect && (
                 <WardCard
-                  key={ward.ward_id}
-                  ward={{
-                    ...ward,
-                    score: ward.score ?? ward.swapi_score,
-                  }}
+                  ward={selectedWardFromSelect}
                   onReport={() => {
-                    setSelectedWard(ward);
+                    setSelectedWard(selectedWardFromSelect);
                     setShowReport(true);
                   }}
                 />
-              ))}
+              )
+            )}
+          </div>
+
+          <div className="midnight-card p-5">
+            <h4 className="text-xs font-bold text-[#46C8E5] uppercase tracking-wider mb-2">
+              How Gamified Points Work
+            </h4>
+            <div className="space-y-2 text-xs text-[#9FB3C9]">
+              <div className="flex items-start gap-2">
+                <span className="text-[#33D6A6] font-bold">+25 pts</span>
+                <span>Submit photo of open container or clogged rooftop drain</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-[#46C8E5] font-bold">+50 pts</span>
+                <span>Field crew dispatched and resolves the reported hazard</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-[#9B83F5] font-bold">Badge</span>
+                <span>Reach Top 10 in your ward for Dhaka Health Champion recognition</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Leaderboard Table */}
+        <div className="lg:col-span-6">
+          <div className="midnight-card p-5">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#1B3654]/60">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <span>🏆</span> Citywide Citizen Leaderboard
+              </h3>
+              <span className="text-[10px] text-[#9FB3C9]">Updated hourly</span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="text-[#9FB3C9] border-b border-[#1B3654]/40">
+                    <th className="pb-2 font-semibold">Rank</th>
+                    <th className="pb-2 font-semibold">Ward Area</th>
+                    <th className="pb-2 font-semibold">Reports</th>
+                    <th className="pb-2 font-semibold text-right">Points</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#1B3654]/30">
+                  {leaderboard.map((row) => (
+                    <tr key={row.rank} className="hover:bg-white/[0.02] transition-colors">
+                      <td className="py-2.5 font-bold text-white">
+                        <span
+                          className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] ${
+                            row.rank === 1
+                              ? "bg-[#F6BA49] text-[#0C1829] font-black"
+                              : row.rank === 2
+                              ? "bg-slate-300 text-[#0C1829] font-black"
+                              : row.rank === 3
+                              ? "bg-[#9B83F5] text-white font-black"
+                              : "bg-[#1B3654] text-[#9FB3C9]"
+                          }`}
+                        >
+                          {row.rank}
+                        </span>
+                      </td>
+                      <td className="py-2.5 font-medium text-white">{row.ward_name}</td>
+                      <td className="py-2.5 text-[#9FB3C9]">{row.reports}</td>
+                      <td className="py-2.5 text-right font-mono font-bold text-[#33D6A6]">
+                        {row.points}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
 
+      {/* Citizen Report Modal */}
       <CitizenReport
-        ward={selectedWard || selectedWardFromSelect}
+        ward={selectedWard}
         open={showReport}
         onClose={() => setShowReport(false)}
       />

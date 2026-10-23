@@ -1,90 +1,241 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg-sidebar: #0C1829;
+  --bg-canvas: #142235;
+  --bg-card: #20354D;
+  --bg-surface: #172C45;
+  --bg-inset: #081C36;
+  --border-subtle: rgba(99, 165, 223, 0.16);
+  --border-strong: rgba(99, 165, 223, 0.32);
+  --text-primary: #F2F7FF;
+  --text-muted: #9FB3C9;
+  --accent-cyan: #46C8E5;
+  --accent-violet: #9B83F5;
+  --status-green: #33D6A6;
+  --status-amber: #F6BA49;
+  --status-rose: #F45B79;
+}
+
 body {
-  background: #0b1220;
-  color: #f8fafc;
-  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-  background-image:
-    radial-gradient(circle at top, rgba(34, 211, 238, 0.14), transparent 45%),
-    radial-gradient(circle at 25% 15%, rgba(14, 165, 233, 0.12), transparent 35%),
-    radial-gradient(circle at 80% 10%, rgba(232, 160, 32, 0.12), transparent 35%);
-  background-attachment: fixed;
+  background-color: #142235;
+  color: #F2F7FF;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 * {
   box-sizing: border-box;
 }
 
-.glass {
-  background: linear-gradient(135deg, rgba(17, 25, 40, 0.85), rgba(17, 25, 40, 0.6));
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(148, 163, 184, 0.12);
+.tabular-numbers {
+  font-variant-numeric: tabular-nums;
 }
 
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0C1829;
+}
+::-webkit-scrollbar-thumb {
+  background: #253F5C;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #46C8E5;
+}
+
+/* Design Tokens & Surfaces */
+.midnight-card {
+  background: #20354D;
+  border: 1px solid rgba(99, 165, 223, 0.16);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px -4px rgba(4, 12, 24, 0.45);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.midnight-card-hover:hover {
+  border-color: rgba(70, 200, 229, 0.35);
+  box-shadow: 0 10px 28px -4px rgba(4, 12, 24, 0.6);
+}
+
+.midnight-surface {
+  background: #172C45;
+  border: 1px solid rgba(99, 165, 223, 0.12);
+  border-radius: 10px;
+}
+
+.midnight-inset {
+  background: #081C36;
+  border: 1px solid rgba(99, 165, 223, 0.12);
+  border-radius: 10px;
+}
+
+/* Input Fields */
+.midnight-input {
+  background: #0D1C2E;
+  border: 1px solid rgba(99, 165, 223, 0.2);
+  color: #F2F7FF;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.midnight-input:focus {
+  outline: none;
+  border-color: #46C8E5;
+  box-shadow: 0 0 0 2px rgba(70, 200, 229, 0.18);
+}
+
+/* Buttons */
+.midnight-btn-primary {
+  background: #1E6FD9;
+  color: #FFFFFF;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 8px 16px;
+  border: 1px solid rgba(70, 200, 229, 0.3);
+  box-shadow: 0 4px 12px rgba(30, 111, 217, 0.3);
+  transition: all 0.15s ease;
+}
+.midnight-btn-primary:hover {
+  background: #257DEB;
+  box-shadow: 0 6px 18px rgba(70, 200, 229, 0.35);
+  transform: translateY(-1px);
+}
+.midnight-btn-primary:active {
+  transform: translateY(0);
+}
+
+.midnight-btn-secondary {
+  background: #172C45;
+  color: #F2F7FF;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 8px 16px;
+  border: 1px solid rgba(99, 165, 223, 0.2);
+  transition: all 0.15s ease;
+}
+.midnight-btn-secondary:hover {
+  background: #20354D;
+  border-color: rgba(99, 165, 223, 0.32);
+}
+
+.midnight-btn-ghost {
+  background: transparent;
+  color: #9FB3C9;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+.midnight-btn-ghost:hover {
+  color: #F2F7FF;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(99, 165, 223, 0.15);
+}
+
+/* Legacy Bridge Classes */
 .card {
-  border-radius: 20px;
-  background: linear-gradient(180deg, rgba(17, 24, 39, 0.9), rgba(15, 23, 42, 0.95));
-  border: 1px solid rgba(148, 163, 184, 0.12);
-  box-shadow: 0 20px 45px rgba(2, 6, 23, 0.45);
+  background: #20354D;
+  border: 1px solid rgba(99, 165, 223, 0.16);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px -4px rgba(4, 12, 24, 0.45);
+  color: #F2F7FF;
 }
 
 .surface {
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(148, 163, 184, 0.12);
-  border-radius: 16px;
+  background: #172C45;
+  border: 1px solid rgba(99, 165, 223, 0.12);
+  border-radius: 10px;
 }
 
 .surface-muted {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.1);
-  border-radius: 16px;
+  background: #0D1C2E;
+  border: 1px solid rgba(99, 165, 223, 0.12);
+  border-radius: 10px;
 }
 
 .btn {
-  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
-}
-
-.btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(34, 211, 238, 0.25);
-}
-
-.btn-amber:hover {
-  box-shadow: 0 12px 24px rgba(232, 160, 32, 0.28);
+  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
+  border-radius: 8px;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #14b8a6, #22d3ee);
-  color: #0b1220;
+  background: #1E6FD9;
+  color: #FFFFFF;
+  font-weight: 600;
+  border: 1px solid rgba(70, 200, 229, 0.3);
+  box-shadow: 0 4px 12px rgba(30, 111, 217, 0.3);
+}
+.btn-primary:hover {
+  background: #257DEB;
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: #172C45;
+  border: 1px solid rgba(99, 165, 223, 0.2);
+  color: #F2F7FF;
 }
-
-.btn-ghost {
-  background: transparent;
-  border: 1px solid rgba(148, 163, 184, 0.2);
+.btn-secondary:hover {
+  background: #20354D;
+  border-color: rgba(99, 165, 223, 0.32);
 }
 
 .badge {
-  letter-spacing: 0.12em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  border: 1px solid rgba(248, 250, 252, 0.15);
+  border: 1px solid rgba(99, 165, 223, 0.22);
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 600;
 }
 
 .input {
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  color: #f8fafc;
+  background: #0D1C2E;
+  border: 1px solid rgba(99, 165, 223, 0.2);
+  color: #F2F7FF;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+.input:focus {
+  outline: none;
+  border-color: #46C8E5;
+  box-shadow: 0 0 0 2px rgba(70, 200, 229, 0.18);
 }
 
-.pill {
-  border-radius: 999px;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.7rem;
-  font-weight: 600;
+/* Leaflet Map Dark Styling */
+.leaflet-container {
+  background-color: #081C36 !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.leaflet-tile {
+  filter: brightness(0.65) invert(1) contrast(2.8) hue-rotate(205deg) saturate(1.8) !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #20354D !important;
+  color: #F2F7FF !important;
+  border: 1px solid rgba(99, 165, 223, 0.28) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6) !important;
+}
+
+.leaflet-popup-tip {
+  background: #20354D !important;
+  border: 1px solid rgba(99, 165, 223, 0.28) !important;
 }

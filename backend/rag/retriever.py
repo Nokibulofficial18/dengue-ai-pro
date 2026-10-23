@@ -61,15 +61,26 @@ async def retrieve_context(query: str, top_k: int = 3) -> list[dict]:
     if not _knowledge_store:
         await init_knowledge_base()
 
-    query_embedding = await get_embedding(query)
+    api_key = os.getenv("OPENAI_API_KEY", "")
+    has_live_key = bool(api_key and api_key != "demo")
 
     scores = []
-    for item in _knowledge_store:
-        if _embeddings_ready:
-            sim = cosine_similarity(query_embedding, item["embedding"])
-        else:
+    if has_live_key:
+        try:
+            query_embedding = await get_embedding(query)
+            for item in _knowledge_store:
+                sim = cosine_similarity(query_embedding, item["embedding"])
+                scores.append((sim, item))
+        except Exception:
+            # Fall back gracefully to lexical overlap on error
+            for item in _knowledge_store:
+                sim = simple_word_overlap_score(query, item["content"])
+                scores.append((sim, item))
+    else:
+        # Transparent lexical word overlap on WHO knowledge base (no random noise)
+        for item in _knowledge_store:
             sim = simple_word_overlap_score(query, item["content"])
-        scores.append((sim, item))
+            scores.append((sim, item))
 
     scores.sort(key=lambda x: x[0], reverse=True)
     return [
@@ -77,6 +88,7 @@ async def retrieve_context(query: str, top_k: int = 3) -> list[dict]:
             "content": item["content"],
             "source": item["source"],
             "similarity": round(score, 3),
+            "retrieval_mode": "semantic" if has_live_key else "lexical_overlap",
         }
         for score, item in scores[:top_k]
     ]

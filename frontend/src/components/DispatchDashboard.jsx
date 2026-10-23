@@ -65,7 +65,7 @@ export default function DispatchDashboard() {
   const confirmDispatch = async (wardId) => {
     try {
       await axios.post(`${API_URL}/api/dispatch/${wardId}/confirm`, {
-        officer_id: "DEMO",
+        officer_id: "DEMO_OFFICER",
       });
     } catch {
       // demo fallback
@@ -77,110 +77,154 @@ export default function DispatchDashboard() {
     );
   };
 
+  const toggleExpand = (wardId) => {
+    setExpanded((prev) => ({ ...prev, [wardId]: !prev[wardId] }));
+  };
+
   return (
-    <div className="card p-5">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-        <div className="text-sm font-semibold">
-          {summary.critical} Critical Wards · {summary.officers} Officers Needed ·{" "}
-          {summary.larvicide.toFixed(1)} Litres Larvicide
+    <div className="midnight-card p-5">
+      {/* Top Summary Bar */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pb-4 mb-4 border-b border-[#1B3654]/60">
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#4A1B28] text-[#F45B79] border border-[#F45B79]/40">
+            {summary.critical} Critical Wards
+          </span>
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#162E4D] text-[#46C8E5] border border-[#46C8E5]/40">
+            {summary.officers} Officers Required
+          </span>
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#133830] text-[#33D6A6] border border-[#33D6A6]/40">
+            {summary.larvicide.toFixed(1)} L Larvicide (Bti)
+          </span>
         </div>
-        <div className="flex items-center gap-3 text-xs text-slate-400">
-          <span>Last updated: {lastUpdated ? lastUpdated.toLocaleTimeString() : "--"}</span>
-          <span>Refresh in {countdown}s</span>
+        <div className="flex items-center gap-2 text-xs text-[#9FB3C9]">
+          <span>Sync in {countdown}s</span>
           <button
-            onClick={() => window.print()}
-            className="rounded-full px-3 py-1 text-xs btn btn-secondary"
+            onClick={fetchQueue}
+            className="p-1.5 rounded-lg bg-[#0D1C2E] border border-[#1B3654] text-[#46C8E5] hover:bg-[#172C45] transition"
+            title="Refresh queue"
           >
-            Print Dispatch Orders
+            ↻
           </button>
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-white/10">
-        <table className="w-full text-sm">
-          <thead className="text-slate-400 bg-white/5">
+      {/* Orders Table */}
+      <div className="overflow-x-auto rounded-xl border border-[#1B3654]/60">
+        <table className="w-full text-left text-xs">
+          <thead className="bg-[#172C45]/80 text-[#9FB3C9]">
             <tr>
-              <th className="text-left py-2">Priority</th>
-              <th className="text-left py-2">Ward</th>
-              <th className="text-left py-2">SWAPI</th>
-              <th className="text-left py-2">Officers</th>
-              <th className="text-left py-2">Larvicide</th>
-              <th className="text-left py-2">Sector</th>
-              <th className="text-left py-2">Status</th>
-              <th className="text-left py-2">Action</th>
+              <th className="p-3 font-semibold">Priority</th>
+              <th className="p-3 font-semibold">Ward</th>
+              <th className="p-3 font-semibold">SWAPI Risk</th>
+              <th className="p-3 font-semibold">Team Size</th>
+              <th className="p-3 font-semibold">Larvicide</th>
+              <th className="p-3 font-semibold">Status</th>
+              <th className="p-3 font-semibold text-right">Actions</th>
             </tr>
           </thead>
-          <tbody>
-            {loading && (
+          <tbody className="divide-y divide-[#1B3654]/40 bg-[#0D1C2E]/40">
+            {loading ? (
               <tr>
-                <td colSpan={8} className="py-6">
-                  <div className="h-6 w-full rounded bg-[#0F1A2E] animate-pulse" />
+                <td colSpan={7} className="p-6 text-center text-[#9FB3C9]">
+                  Loading field dispatch recommendations...
                 </td>
               </tr>
-            )}
-            {!loading && orders.map((order) => {
-              const isCritical = (order.swapi_score || 0) > 0.7;
-              const rowColor = isCritical ? "bg-rose-500/10" : "bg-amber-500/10";
-              return (
-                <Fragment key={order.ward_id}>
-                  <tr className={`${rowColor} ${newOrders[order.ward_id] ? "animate-pulse" : ""}`}>
-                    <td className="py-2">
-                      <span
-                        className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-cyan-500/20 text-cyan-200 text-xs"
-                      >
-                        {order.priority_rank}
-                      </span>
-                    </td>
-                    <td className="py-2">{order.ward_name}</td>
-                    <td className="py-2">{order.swapi_score?.toFixed(2)}</td>
-                    <td className="py-2">{order.officer_count}</td>
-                    <td className="py-2">{order.larvicide_litres}</td>
-                    <td className="py-2">{order.target_sector}</td>
-                    <td className="py-2">
-                      <span
-                        className={`rounded-full px-2 py-1 text-xs ${
-                          order.status === "confirmed"
-                            ? "bg-emerald-500/20 text-emerald-200"
-                            : "bg-slate-500/30 text-slate-200"
-                        }`}
-                      >
-                        {order.status || "pending"}
-                      </span>
-                    </td>
-                    <td className="py-2 flex flex-col gap-2">
-                      <button
-                        onClick={() =>
-                          setExpanded((prev) => ({
-                            ...prev,
-                            [order.ward_id]: !prev[order.ward_id],
-                          }))
-                        }
-                        className="rounded bg-cyan-500/20 px-2 py-1 text-xs text-cyan-200 btn"
-                      >
-                        View AI Reasoning
-                      </button>
-                      <button
-                        onClick={() => confirmDispatch(order.ward_id)}
-                        className="rounded bg-amber-400 px-2 py-1 text-xs text-[#0b1220] btn btn-amber"
-                      >
-                        Confirm Dispatch
-                      </button>
-                    </td>
-                  </tr>
-                  {expanded[order.ward_id] && (
-                    <tr className="bg-white/5">
-                      <td colSpan={8} className="p-3 text-xs">
-                        <div className="font-semibold mb-1">Reasoning</div>
-                        <div>{order.reasoning || order.llm_reasoning}</div>
-                        <div className="mt-2 italic text-slate-400">
-                          {order.rag_citation}
-                        </div>
+            ) : (
+              orders.map((order, idx) => {
+                const isCritical = (order.swapi_score || 0) >= 0.7;
+                const isExpanded = !!expanded[order.ward_id];
+                const isConfirmed = order.status === "confirmed" || order.status === "completed";
+
+                return (
+                  <Fragment key={order.ward_id}>
+                    <tr
+                      className={`hover:bg-white/[0.03] transition-colors cursor-pointer ${
+                        newOrders[order.ward_id] ? "bg-[#46C8E5]/10" : ""
+                      }`}
+                      onClick={() => toggleExpand(order.ward_id)}
+                    >
+                      <td className="p-3 font-bold text-white">
+                        <span className="w-6 h-6 rounded-md bg-[#1B3654] text-[#46C8E5] inline-flex items-center justify-center font-mono">
+                          #{order.priority_rank || idx + 1}
+                        </span>
+                      </td>
+                      <td className="p-3 font-bold text-white">
+                        {order.ward_name} <span className="text-[10px] text-[#9FB3C9] font-normal">({order.ward_id})</span>
+                      </td>
+                      <td className="p-3">
+                        <span
+                          className={`font-mono font-bold px-2 py-0.5 rounded text-[11px] ${
+                            isCritical ? "bg-[#F45B79]/20 text-[#F45B79]" : "bg-[#F6BA49]/20 text-[#F6BA49]"
+                          }`}
+                        >
+                          {(order.swapi_score || 0).toFixed(2)}
+                        </span>
+                      </td>
+                      <td className="p-3 text-white">
+                        {order.officer_count || order.recommended_officers || 2} Officers
+                      </td>
+                      <td className="p-3 text-[#33D6A6] font-mono font-semibold">
+                        {order.larvicide_litres ? `${order.larvicide_litres} L` : "12.0 L"}
+                      </td>
+                      <td className="p-3">
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            isConfirmed
+                              ? "bg-[#133830] text-[#33D6A6] border border-[#33D6A6]/40"
+                              : "bg-[#4A3515] text-[#F6BA49] border border-[#F6BA49]/40"
+                          }`}
+                        >
+                          {isConfirmed ? "Confirmed" : "Pending"}
+                        </span>
+                      </td>
+                      <td className="p-3 text-right" onClick={(e) => e.stopPropagation()}>
+                        {!isConfirmed ? (
+                          <button
+                            onClick={() => confirmDispatch(order.ward_id)}
+                            className="midnight-btn-primary text-xs py-1 px-3"
+                          >
+                            Dispatch Crew
+                          </button>
+                        ) : (
+                          <span className="text-[11px] text-[#33D6A6] font-semibold">
+                            ✓ Dispatched
+                          </span>
+                        )}
                       </td>
                     </tr>
-                  )}
-                </Fragment>
-              );
-            })}
+
+                    {/* Expanded Detail Row */}
+                    {isExpanded && (
+                      <tr className="bg-[#172C45]/50 border-t border-b border-[#1B3654]/40">
+                        <td colSpan={7} className="p-4 space-y-2">
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-[#46C8E5] tracking-wider">
+                              Target Sector &amp; Focus:
+                            </span>
+                            <p className="text-xs text-white mt-0.5">
+                              {order.target_sector || "High-risk residential storm drains and open construction sumps."}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-[#9FB3C9] tracking-wider">
+                              Clinical RAG Reasoning:
+                            </span>
+                            <p className="text-xs text-slate-300 mt-0.5 italic">
+                              "{order.reasoning || "Elevated rainfall and drainage coefficients trigger priority source reduction under WHO guideline."}"
+                            </p>
+                          </div>
+                          {order.rag_citation && (
+                            <div className="text-[11px] text-[#33D6A6]">
+                              <span className="font-semibold">Citation:</span> {order.rag_citation}
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>

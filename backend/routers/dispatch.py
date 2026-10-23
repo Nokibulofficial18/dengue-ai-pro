@@ -120,10 +120,27 @@ async def get_dispatch_queue(db: AsyncSession = Depends(get_db)):
         ward = next(
             w for w in WARDS if w["ward_id"] == ward_swapi["ward_id"]
         )
-        order = await generate_dispatch_order(ward, ward_swapi)
-        order.setdefault("priority_rank", index)
-        order.setdefault("swapi_score", ward_swapi["score"])
-        orders.append(await _save_dispatch_order(db, order))
+        existing_row = (
+            await db.execute(
+                text(
+                    "SELECT * FROM dispatch_orders WHERE ward_id = :ward_id ORDER BY created_at DESC LIMIT 1"
+                ),
+                {"ward_id": ward_swapi["ward_id"]},
+            )
+        ).mappings().first()
+
+        if existing_row:
+            existing_order = dict(existing_row)
+            existing_order["priority_rank"] = index
+            existing_order["swapi_score"] = ward_swapi["score"]
+            existing_order.setdefault("reasoning", existing_order.get("llm_reasoning"))
+            existing_order.setdefault("recommended_officers", existing_order.get("officer_count"))
+            orders.append(existing_order)
+        else:
+            order = await generate_dispatch_order(ward, ward_swapi)
+            order.setdefault("priority_rank", index)
+            order.setdefault("swapi_score", ward_swapi["score"])
+            orders.append(await _save_dispatch_order(db, order))
 
     orders.sort(key=lambda x: x.get("priority_rank", 99))
     return orders

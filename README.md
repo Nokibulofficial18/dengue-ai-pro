@@ -1,123 +1,198 @@
-# DengueAI Pro
+# DengueAI Pro — AI-Augmented Dengue Risk Intelligence System
 
-AI-native dengue prevention intelligence system for Bangladesh. DengueAI Pro combines SWAPI risk scoring, RAG-grounded guidance, and citizen reporting to help authorities act before outbreaks escalate.
+DengueAI Pro is an enterprise, multi-tenant dengue risk intelligence and vector management system designed for municipal authorities, industrial parks, commercial campuses, and community stakeholders.
 
-## Live Demo
+The platform integrates ward-level environmental risk modeling (SWAPI), permanent facility hazard registries, rule-based reinspection scheduling, field service verification, long-term structural repair economics, and inter-property cross-boundary coordination.
 
-https://dengueaipro.netlify.app/
+---
 
-## Highlights
+## System Architecture & Module Overview
 
-- Live dengue risk heatmap for 10 Dhaka wards
-- SWAPI risk scoring with explainable contributing factors
-- LLM-powered dispatch orders (Claude AI + RAG)
-- Citizen photo reporting with AI verification and points
-- Authority command dashboard
-- Works in demo mode without any API keys
+```
+                        ┌──────────────────────────────────────────────┐
+                        │              DengueAI Pro Frontend           │
+                        │       (React 18 + Vite + Leaflet + Axios)    │
+                        └──────────────────────┬───────────────────────┘
+                                               │ HTTP / REST
+                                               ▼
+                        ┌──────────────────────────────────────────────┐
+                        │             FastAPI Backend Service          │
+                        │       (Python 3.11+ / Async SQLAlchemy)       │
+                        └──────┬──────┬───────┬───────┬───────┬────────┘
+                               │      │       │       │       │
+       ┌───────────────────────┘      │       │       │       └────────────────────────┐
+       ▼                              ▼       ▼       ▼                                ▼
+┌──────────────┐             ┌────────────────┐ ┌────────────────┐            ┌────────────────┐
+│   Core /     │             │ Improvement 01 │ │ Improvement 02 │            │ Improvement 05 │
+│ SWAPI Risk & │             │  Site & Hazard │ │     Smart      │            │  Consortium &  │
+│ Dispatch     │             │    Registry    │ │   Scheduling   │            │  Coordination  │
+└──────┬───────┘             └───────┬────────┘ └───────┬────────┘            └───────┬────────┘
+       │                             │                  │                             │
+       │                             ▼                  ▼                             │
+       │                     ┌───────────────────────────────────┐                    │
+       │                     │          Improvement 03           │                    │
+       │                     │    Service Work Order Lifecycle   │                    │
+       │                     │    & Evidence Verification Queue  │                    │
+       │                     └─────────────────┬─────────────────┘                    │
+       │                                       │                                      │
+       │                                       ▼                                      │
+       │                     ┌───────────────────────────────────┐                    │
+       └────────────────────►│          Improvement 04           │◄───────────────────┘
+                             │  Permanent Repair & Cost Savings  │
+                             │  (Assessment, Quotes, Payback)    │
+                             └─────────────────┬─────────────────┘
+                                               │
+                                               ▼
+                             ┌───────────────────────────────────┐
+                             │       SQLite / aiosqlite DB       │
+                             │          (dengueai.db)            │
+                             └───────────────────────────────────┘
+```
 
-## How It Works
+### Core Subsystems:
+1. **Ward Risk Intelligence (SWAPI Engine):** Calculates non-linear environmental monsoon risk scores [0, 1] across Dhaka wards using rainfall, temperature, humidity, sunlight, and drainage coefficients.
+2. **Improvement 01 — Permanent Hazard Location Records:** Registers facilities, permanent outdoor/indoor breeding spots (roof drains, sumps, cooling towers), recurring issue chains, and chronological inspection timelines.
+3. **Improvement 02 — Smart Reinspection Scheduling:** Priority inspection policies, recurrence accelerators, verified rainfall triggers, managerial approval, and unified calendar management.
+4. **Improvement 03 — Service & Resolution Verification:** Complete work-order dispatch lifecycle, photographic evidence submission with SHA-256 duplicate detection, supervisor reviews, independent follow-up verification, and recurring issue reopenings.
+5. **Improvement 04 — Permanent Repair & Cost Savings:** Maintenance expense tracking, recurring-cost opportunity detection, engineering assessments, supplier quotations, 3-scenario payback modeling, and conversion to capital repair work orders.
+6. **Improvement 05 — Coordinated Prevention Across Properties:** Multi-tenant tenant accounts, consortium groups, invitation workflows, shared boundary drainage areas, joint inspections/work orders, and server-side default-deny permission isolation.
 
-1) Data Sources
-	- Weather inputs (rainfall, humidity, sunlight, temperature range)
-	- Ward drainage coefficients and population density
-	- Citizen reports and water detections
+---
 
-2) SWAPI Risk Engine
-	- Computes a risk score per ward using normalized weather + drainage signals
-	- Produces a risk level and contribution breakdown for explainability
+## Prerequisites
 
-3) RAG + LLM Dispatch
-	- Retrieves WHO/DGHS guidance from the in-memory knowledge store
-	- Generates dispatch recommendations with citations
+- **Python:** 3.11 or higher (Python 3.13 supported)
+- **Node.js:** v18.0.0 or higher (v20+ recommended)
+- **Git**
 
-4) Citizen Reporting
-	- Photo or text reports are verified and rewarded
-	- Verified reports feed into the detection layer
+---
 
-## Tech Stack
+## Environment Setup
 
-- Frontend: Vite + React 18 + Tailwind CSS + Leaflet
-- Backend: FastAPI + SQLite (local) + async SQLAlchemy
-- RAG: in-memory cosine similarity (no external vector DB)
+### 1. Backend Configuration
 
-## Local Development (No Docker)
-
-### Backend
-
-1) From the project root, go to the backend folder
-2) Install dependencies
-3) Create a local env file
-4) Run the API
-
-Commands
-
+Navigate to the `backend/` directory:
+```bash
 cd backend
+```
+
+Create a virtual environment and install dependencies:
+```bash
+# Windows
+python -m venv .venv
+.\.venv\Scripts\activate
+
+# Linux / macOS
+python3 -m venv .venv
+source .venv/bin/activate
+
 pip install -r requirements.txt
-cp .env.example .env
-uvicorn main:app --reload --port 8000
+```
 
-Backend runs on http://localhost:8000
+Configure your `.env` file (copied from `.env.example`):
+```env
+DEMO_MODE=true
+DATABASE_URL=sqlite+aiosqlite:///./dengueai.db
+ANTHROPIC_API_KEY=demo
+OPENAI_API_KEY=demo
+OPENWEATHERMAP_API_KEY=demo
+```
 
-### Frontend
+*Note: In `DEMO_MODE=true`, the application runs with high-fidelity demonstration datasets representing Dhaka monsoon conditions, deterministic WHO RAG retrieval, and simulated AI responses without requiring paid third-party API keys.*
 
-1) From the project root, go to the frontend folder
-2) Install dependencies
-3) Create a local env file
-4) Run the app
+### 2. Frontend Configuration
 
-Commands
-
-cd frontend
+Navigate to the `frontend/` directory:
+```bash
+cd ../frontend
 npm install
-cp .env.example .env
+```
+
+Configure `frontend/.env`:
+```env
+VITE_API_URL=http://localhost:8000
+```
+
+---
+
+## Running the Application Locally
+
+### Start the Backend Server:
+```bash
+cd backend
+.\.venv\Scripts\activate
+uvicorn main:app --reload --port 8000
+```
+- API Base URL: `http://localhost:8000`
+- Interactive OpenAPI Docs: `http://localhost:8000/docs`
+- Database file `backend/dengueai.db` is initialized automatically on startup using non-destructive table creation (`Base.metadata.create_all`).
+
+### Start the Frontend Dev Server:
+```bash
+cd frontend
 npm run dev
+```
+- Frontend UI: `http://localhost:5173`
 
-Frontend runs on http://localhost:5173
+---
 
-## Demo Reset Endpoint
+## Development Authentication & Permissions
 
-Use this before a presentation to reset demo data:
+During local development and testing, role-based access control (RBAC) and multi-tenant isolation are managed via HTTP request headers:
 
-POST http://localhost:8000/api/demo/reset
+- **`X-Authority-Key`**: API key for administrative operations (default test key: `demo-authority-key`).
+- **`X-User-Role`**: Role used for permission checks:
+  - `worker`: Can view assigned tasks, submit labor hours, and upload photographic evidence.
+  - `supervisor`: Can review evidence, approve work completion, and request clarification.
+  - `property_manager`: Can register properties, approve inspection schedules, and approve repair proposals.
+  - `finance_approver`: Can authorize capital expenditure budgets and supplier quotations.
+  - `coordinator`: Can manage consortium groups, send invitations, and assign shared areas.
+- **`X-Organization-Id`**: Tenant identifier enforcing data isolation boundaries.
 
-## Deployment
+---
 
-### Backend to Railway or Render
+## Automated Test Suites
 
-1) Push to GitHub
-2) Create a new service and point it to the backend folder
-3) Add env vars:
-	- DEMO_MODE=true
-	- ANTHROPIC_API_KEY=your_key
-	- OPENAI_API_KEY=optional
-4) Deploy (Procfile is included)
+The repository contains 7 comprehensive test suites covering unit logic, security isolation, and cross-feature integration:
 
-### Frontend to Vercel or Netlify
+```bash
+cd backend
+.\.venv\Scripts\python.exe -m pytest -v
+```
 
-1) Push to GitHub
-2) Create a new project and set root directory to frontend
-3) Add env var:
-	- VITE_API_URL=https://your-backend-url
-4) Deploy
+### Test Suite Summary (41/41 Passing):
+- `tests/test_e2e_integration.py`: Complete 14-stage lifecycle from property creation through inspection, recurrence, repair payback, shared consortium, and SQLite persistence.
+- `tests/test_original_and_security.py`: Dispatch queue idempotency, citizen photo upload security, SWAPI risk tiers, lexical RAG fallback, and multi-tenant data isolation.
+- `tests/test_coordination.py`: Consortium invitations, shared areas, and default-deny permissions.
+- `tests/test_repair_planning.py`: Financial calculations, 3-scenario payback modeling, supplier quotes, and approval guards.
+- `tests/test_service_verification.py`: Work order state transitions, photo evidence hashing, and supervisor reviews.
+- `tests/test_sites_hazard_registry.py`: Property registries, permanent hazard locations, and issue timelines.
+- `tests/test_smart_scheduling.py`: Reinspection policies, recurrence-based frequency adjustments, and rainfall triggers.
 
-## Environment Variables
+### Frontend Production Build:
+```bash
+cd frontend
+npm run build
+```
+Compiles production bundles to `frontend/dist/` without errors or warnings.
 
-Backend (backend/.env.example)
-- DEMO_MODE=true
-- DATABASE_URL=sqlite+aiosqlite:///./dengueai.db
-- ANTHROPIC_API_KEY=demo
-- OPENWEATHERMAP_API_KEY=demo
-- OPENAI_API_KEY=demo
+---
 
-Frontend (frontend/.env.example)
-- VITE_API_URL=http://localhost:8000
+## Audited Implementation Status & Limitations
 
-## Project Structure
+See [`IMPLEMENTATION_STATUS.md`](file:///c:/Users/ADMiN/Desktop/dengueai-pro/IMPLEMENTATION_STATUS.md) and [`FINAL_SYSTEM_VERIFICATION_REPORT.md`](file:///c:/Users/ADMiN/Desktop/dengueai-pro/FINAL_SYSTEM_VERIFICATION_REPORT.md) for full technical audit details.
 
-- backend: FastAPI service with SQLite, RAG retriever, and demo data
-- frontend: Vite + React app with heatmap, dashboards, and reporting
+### What Is Genuine & Operational:
+- Full CRUD, relational data integrity, and persistent workflows for Improvements 1 through 5.
+- Mathematical SWAPI risk weighting across 10 Dhaka wards.
+- Dispatch queue generation with idempotent retrieval.
+- Multi-tenant data segregation preventing cross-organization leakage.
+- Deterministic RAG retriever matching WHO/DGHS clinical guidelines.
+- Cryptographic duplicate file detection on field evidence.
 
-## Team
-
-GSTU NEUROBLITZZZ | Gopalganj Science and Technology University
-The Infinity AI BuildFest 2026 | Track 3 — HealthTech
+### What Is Prototype / Simulated / Unimplemented:
+- **Trained LSTM / Neural Outbreak Forecasting:** Not implemented; proposal-only concept. Historical 2023 DGHS figures displayed.
+- **YOLOv8 Computer Vision:** Citizen photo uploads are safely validated and stored, but no live neural object detection runs. Reports are honestly recorded as unverified pending field review.
+- **Satellite Multispectral Detection:** Sentinel-2 processing pipeline was proposed in hackathon pitch but is not implemented.
+- **Weather Feed:** Runs on realistic demo monsoon data by default; live streaming requires an OpenWeatherMap API key.
+- **Database Scalability:** Uses SQLite for zero-configuration local runs; high-concurrency production deployments require migration to PostgreSQL.

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import os
 import uuid
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -26,51 +26,32 @@ async def submit_citizen_report(
 
     photo_path = None
     confidence = 0.0
+    # Genuine verification requires field inspection / authority validation
+    # Prototype does not bundle edge YOLO weights; reports are recorded as pending verification.
     verified = False
-    points_awarded = 0
+    points_awarded = 5 if photo else 2
 
-    if photo:
-        os.makedirs(UPLOADS_DIR, exist_ok=True)
-        photo_path = os.path.join(UPLOADS_DIR, f"{report_id}.jpg")
+    if photo and photo.filename:
+        ext = os.path.splitext(photo.filename)[1].lower()
+        allowed_exts = {".jpg", ".jpeg", ".png", ".webp"}
+        if ext not in allowed_exts:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid photo format '{ext}'. Allowed formats: JPG, PNG, WEBP."
+            )
+
         content = await photo.read()
+        if len(content) > 10 * 1024 * 1024:  # 10 MB limit
+            raise HTTPException(
+                status_code=400,
+                detail="Photo size exceeds maximum allowed 10MB limit."
+            )
+
+        os.makedirs(UPLOADS_DIR, exist_ok=True)
+        safe_filename = f"{report_id}{ext}"
+        photo_path = os.path.join(UPLOADS_DIR, safe_filename)
         with open(photo_path, "wb") as handle:
             handle.write(content)
-
-        size_kb = len(content) / 1024
-        if size_kb > 50:
-            confidence = 0.85
-            verified = True
-        elif size_kb >= 10:
-            confidence = 0.65
-            verified = False
-        else:
-            confidence = 0.0
-            verified = False
-    else:
-        confidence = 0.5
-        verified = True
-
-    if verified:
-        points_awarded = 10
-        severity = "high" if confidence >= 0.8 else "moderate"
-        await db.execute(
-            text(
-                """
-                INSERT INTO pgc_detections
-                (ward_id, latitude, longitude, severity, source, verified, detected_at)
-                VALUES (:ward_id, :latitude, :longitude, :severity, :source, :verified, :detected_at)
-                """
-            ),
-            {
-                "ward_id": ward_id,
-                "latitude": None,
-                "longitude": None,
-                "severity": severity,
-                "source": "citizen",
-                "verified": 1,
-                "detected_at": submitted_at,
-            },
-        )
 
     await db.execute(
         text(
@@ -91,16 +72,8 @@ async def submit_citizen_report(
     )
     await db.commit()
 
-    message_en = (
-        "Report verified. 10 points awarded!"
-        if verified
-        else "No standing water detected. Please try again."
-    )
-    message_bn = (
-        "আপনার রিপোর্ট যাচাই করা হয়েছে। ১০ পয়েন্ট অর্জিত হয়েছে!"
-        if verified
-        else "ছবিতে স্থির পানি সনাক্ত করা যায়নি। আবার চেষ্টা করুন।"
-    )
+    message_en = f"Citizen report submitted successfully. {points_awarded} community points awarded. Pending field verification."
+    message_bn = f"আপনার রিপোর্ট সফলভাবে জমা হয়েছে। {points_awarded} পয়েন্ট অর্জিত হয়েছে। মাঠ পরিদর্শকের যাচাইয়ের জন্য অপেক্ষমাণ।"
 
     return {
         "verified": verified,
@@ -109,6 +82,7 @@ async def submit_citizen_report(
         "message_en": message_en,
         "message_bn": message_bn,
         "report_id": report_id,
+        "status": "pending_verification",
     }
 
 
