@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { getCached, cachedGet, invalidateCache } from "../utils/apiCache";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -32,13 +33,13 @@ export default function ServiceVerification() {
   // Active navigation tab
   const [activeTab, setActiveTab] = useState("supervisor"); // 'supervisor' | 'worker' | 'directory' | 'followup' | 'contractors'
 
-  // Data states
-  const [stats, setStats] = useState(null);
-  const [workOrders, setWorkOrders] = useState([]);
-  const [supervisorQueue, setSupervisorQueue] = useState([]);
-  const [followupQueue, setFollowupQueue] = useState([]);
-  const [properties, setProperties] = useState([]);
-  const [locations, setLocations] = useState([]);
+  // Data states initialized from client cache for instant 0ms mount render
+  const [stats, setStats] = useState(() => getCached(`${API_URL}/api/services/stats`));
+  const [workOrders, setWorkOrders] = useState(() => getCached(`${API_URL}/api/services/work-orders`) || []);
+  const [supervisorQueue, setSupervisorQueue] = useState(() => getCached(`${API_URL}/api/services/reviews/queue`) || []);
+  const [followupQueue, setFollowupQueue] = useState(() => getCached(`${API_URL}/api/services/follow-up/queue`) || []);
+  const [properties, setProperties] = useState(() => getCached(`${API_URL}/api/sites/properties`) || []);
+  const [locations, setLocations] = useState(() => getCached(`${API_URL}/api/sites/locations`) || []);
 
   // Filters
   const [statusFilter, setStatusFilter] = useState("all");
@@ -119,19 +120,22 @@ export default function ServiceVerification() {
     };
   }, [authSession]);
 
-  // Load Initial Data
-  const fetchData = async () => {
+  // Load Initial Data with SWR client-side caching
+  const fetchData = async (forceRefresh = false) => {
     if (!authSession) return;
-    setLoading(true);
+    // Only show loading spinner if cold cache (no data yet)
+    if (!stats && workOrders.length === 0) {
+      setLoading(true);
+    }
     setActionError(null);
     try {
       const [statsRes, woRes, revQueueRes, fuQueueRes, propsRes, locsRes] = await Promise.all([
-        axios.get(`${API_URL}/api/services/stats`, { headers: authHeaders }),
-        axios.get(`${API_URL}/api/services/work-orders`, { headers: authHeaders }),
-        axios.get(`${API_URL}/api/services/reviews/queue`, { headers: authHeaders }),
-        axios.get(`${API_URL}/api/services/follow-up/queue`, { headers: authHeaders }),
-        axios.get(`${API_URL}/api/sites/properties`, { headers: authHeaders }),
-        axios.get(`${API_URL}/api/sites/locations`, { headers: authHeaders }),
+        cachedGet(`${API_URL}/api/services/stats`, { headers: authHeaders }, undefined, forceRefresh),
+        cachedGet(`${API_URL}/api/services/work-orders`, { headers: authHeaders }, undefined, forceRefresh),
+        cachedGet(`${API_URL}/api/services/reviews/queue`, { headers: authHeaders }, undefined, forceRefresh),
+        cachedGet(`${API_URL}/api/services/follow-up/queue`, { headers: authHeaders }, undefined, forceRefresh),
+        cachedGet(`${API_URL}/api/sites/properties`, { headers: authHeaders }, undefined, forceRefresh),
+        cachedGet(`${API_URL}/api/sites/locations`, { headers: authHeaders }, undefined, forceRefresh),
       ]);
 
       setStats(statsRes.data);
@@ -509,7 +513,7 @@ export default function ServiceVerification() {
               <span>➕</span> New Work Order
             </button>
             <button
-              onClick={fetchData}
+              onClick={() => fetchData(true)}
               disabled={loading}
               className="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm border border-gray-700 transition flex items-center gap-1.5"
             >

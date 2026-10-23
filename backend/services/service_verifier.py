@@ -718,6 +718,107 @@ class ServiceVerifier:
         return data
 
     @classmethod
+    async def get_work_orders_bulk(
+        cls,
+        db: AsyncSession,
+        work_order_ids: List[str]
+    ) -> List[Dict[str, Any]]:
+        """
+        High-performance bulk retrieval of complete work order profiles.
+        Eliminates the N+1 query bottleneck by fetching main rows, submissions,
+        files, status history, and resolution records in 5 bulk queries.
+        """
+        if not work_order_ids:
+            return []
+
+        today = _today_str()
+        def clean_id(s: str) -> str:
+            return "'" + s.replace("'", "") + "'"
+        ids_joined = ",".join(clean_id(wid) for wid in work_order_ids)
+
+        # 1. Main work orders query
+        query = text(f"""
+            SELECT wo.*,
+                   p.name AS property_name, p.ward_id,
+                   l.location_code, l.name AS location_name, l.category AS location_category,
+                   i.issue_type, i.severity AS issue_severity, i.status AS issue_status
+            FROM service_work_orders wo
+            JOIN properties p ON wo.property_id = p.id
+            JOIN permanent_hazard_locations l ON wo.location_id = l.id
+            LEFT JOIN location_issues i ON wo.issue_id = i.id
+            WHERE wo.id IN ({ids_joined})
+        """)
+        res = await db.execute(query)
+        by_id: Dict[str, Dict[str, Any]] = {}
+        for row in res.mappings().all():
+            d = dict(row)
+            d["is_overdue"] = bool(
+                d["status"] not in ("work_verified", "cancelled") and d["due_date"] < today
+            )
+            d["submissions"] = []
+            d["status_history"] = []
+            d["resolution_records"] = []
+            by_id[d["id"]] = d
+
+        # 2. Bulk submissions
+        subs_query = text(f"""
+            SELECT * FROM service_evidence_submissions
+            WHERE work_order_id IN ({ids_joined})
+            ORDER BY submission_version DESC
+        """)
+        subs_res = await db.execute(subs_query)
+        all_subs = [dict(s) for s in subs_res.mappings().all()]
+        sub_by_id = {s["id"]: s for s in all_subs}
+
+        # 3. Bulk files
+        if all_subs:
+            s_ids_joined = ",".join(clean_id(s["id"]) for s in all_subs)
+            files_query = text(f"""
+                SELECT * FROM service_evidence_files
+                WHERE submission_id IN ({s_ids_joined})
+                ORDER BY server_received_at ASC
+            """)
+            files_res = await db.execute(files_query)
+            for f in files_res.mappings().all():
+                fd = dict(f)
+                fd["is_duplicate_flag"] = bool(fd.get("is_duplicate_flag"))
+                fd["download_url"] = f"/api/services/evidence/file/{fd['id']}"
+                if fd["submission_id"] in sub_by_id:
+                    sub_by_id[fd["submission_id"]].setdefault("files", []).append(fd)
+
+        for s in all_subs:
+            s.setdefault("files", [])
+            s["access_restricted"] = bool(s.get("access_restricted"))
+            if s["work_order_id"] in by_id:
+                by_id[s["work_order_id"]]["submissions"].append(s)
+
+        # 4. Bulk status history
+        hist_query = text(f"""
+            SELECT * FROM work_order_status_history
+            WHERE work_order_id IN ({ids_joined})
+            ORDER BY changed_at ASC
+        """)
+        hist_res = await db.execute(hist_query)
+        for h in hist_res.mappings().all():
+            hd = dict(h)
+            if hd["work_order_id"] in by_id:
+                by_id[hd["work_order_id"]]["status_history"].append(hd)
+
+        # 5. Bulk resolution records
+        res_query = text(f"""
+            SELECT * FROM resolution_verification_records
+            WHERE work_order_id IN ({ids_joined})
+            ORDER BY verified_at DESC
+        """)
+        res_records = await db.execute(res_query)
+        for r in res_records.mappings().all():
+            rd = dict(r)
+            if rd["work_order_id"] in by_id:
+                by_id[rd["work_order_id"]]["resolution_records"].append(rd)
+
+        return [by_id[wid] for wid in work_order_ids if wid in by_id]
+
+    @classmethod
     async def get_service_statistics(cls, db: AsyncSession) -> Dict[str, Any]:
         """Compute operational statistics based on real service work order records."""
         total = (await db.execute(text("SELECT count(*) FROM service_work_orders"))).scalar() or 0

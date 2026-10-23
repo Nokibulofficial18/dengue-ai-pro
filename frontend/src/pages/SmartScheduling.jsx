@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { getCached, cachedGet, invalidateCache } from "../utils/apiCache";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -22,13 +23,13 @@ export default function SmartScheduling() {
   // Active navigation tab
   const [activeTab, setActiveTab] = useState("recommendations"); // 'recommendations' | 'calendar' | 'rainfall' | 'policies'
 
-  // Data states
-  const [stats, setStats] = useState(null);
-  const [recommendations, setRecommendations] = useState([]);
-  const [calendarItems, setCalendarItems] = useState([]);
-  const [rainfallRecords, setRainfallRecords] = useState([]);
-  const [policies, setPolicies] = useState([]);
-  const [properties, setProperties] = useState([]);
+  // Data states initialized from client cache for instant 0ms mount render
+  const [stats, setStats] = useState(() => getCached(`${API_URL}/api/scheduling/stats`));
+  const [recommendations, setRecommendations] = useState(() => getCached(`${API_URL}/api/scheduling/recommendations`) || []);
+  const [calendarItems, setCalendarItems] = useState(() => getCached(`${API_URL}/api/scheduling/calendar`) || []);
+  const [rainfallRecords, setRainfallRecords] = useState(() => getCached(`${API_URL}/api/scheduling/rainfall`) || []);
+  const [policies, setPolicies] = useState(() => getCached(`${API_URL}/api/scheduling/policies`) || []);
+  const [properties, setProperties] = useState(() => getCached(`${API_URL}/api/sites/properties`) || []);
 
   // Filters
   const [statusFilter, setStatusFilter] = useState("proposed");
@@ -136,21 +137,24 @@ export default function SmartScheduling() {
   };
 
   // --------------------------------------------------------------------------
-  // Data Fetching
+  // Data Fetching with SWR client-side caching
   // --------------------------------------------------------------------------
-  const refreshData = async () => {
+  const refreshData = async (forceRefresh = false) => {
     if (!authSession) return;
-    setLoading(true);
+    // Only show loading spinner on cold cache
+    if (!stats && recommendations.length === 0) {
+      setLoading(true);
+    }
     setActionError(null);
     try {
       const headers = getAuthHeaders();
       const [statsRes, recsRes, calRes, rainRes, polRes, propRes] = await Promise.all([
-        axios.get(`${API_URL}/api/scheduling/stats`, { headers }),
-        axios.get(`${API_URL}/api/scheduling/recommendations`, { headers }),
-        axios.get(`${API_URL}/api/scheduling/calendar`, { headers }),
-        axios.get(`${API_URL}/api/scheduling/rainfall`, { headers }),
-        axios.get(`${API_URL}/api/scheduling/policies`, { headers }),
-        axios.get(`${API_URL}/api/sites/properties`, { headers }).catch(() => ({ data: [] })),
+        cachedGet(`${API_URL}/api/scheduling/stats`, { headers }, undefined, forceRefresh),
+        cachedGet(`${API_URL}/api/scheduling/recommendations`, { headers }, undefined, forceRefresh),
+        cachedGet(`${API_URL}/api/scheduling/calendar`, { headers }, undefined, forceRefresh),
+        cachedGet(`${API_URL}/api/scheduling/rainfall`, { headers }, undefined, forceRefresh),
+        cachedGet(`${API_URL}/api/scheduling/policies`, { headers }, undefined, forceRefresh),
+        cachedGet(`${API_URL}/api/sites/properties`, { headers }, undefined, forceRefresh).catch(() => ({ data: [] })),
       ]);
       setStats(statsRes.data);
       setRecommendations(recsRes.data);

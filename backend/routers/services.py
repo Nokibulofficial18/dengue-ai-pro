@@ -109,13 +109,8 @@ async def list_work_orders(
     """)
     res = await db.execute(query, params)
     ids = [r[0] for r in res.fetchall()]
-
-    out = []
-    for wo_id in ids:
-        detail = await ServiceVerifier.get_work_order_detail(db, wo_id)
-        if detail:
-            out.append(WorkOrderOut(**detail))
-    return out
+    bulk_details = await ServiceVerifier.get_work_orders_bulk(db, ids)
+    return [WorkOrderOut(**d) for d in bulk_details]
 
 
 @router.post("/work-orders", response_model=WorkOrderOut, status_code=status.HTTP_201_CREATED)
@@ -324,12 +319,8 @@ async def get_supervisor_review_queue(
     """)
     res = await db.execute(query)
     ids = [r[0] for r in res.fetchall()]
-    out = []
-    for wo_id in ids:
-        d = await ServiceVerifier.get_work_order_detail(db, wo_id)
-        if d:
-            out.append(WorkOrderOut(**d))
-    return out
+    bulk = await ServiceVerifier.get_work_orders_bulk(db, ids)
+    return [WorkOrderOut(**d) for d in bulk]
 
 
 @router.post("/work-orders/{work_order_id}/review", response_model=WorkOrderOut)
@@ -382,12 +373,8 @@ async def get_followup_queue(
     """)
     res = await db.execute(query)
     ids = [r[0] for r in res.fetchall()]
-    out = []
-    for wo_id in ids:
-        d = await ServiceVerifier.get_work_order_detail(db, wo_id)
-        if d:
-            out.append(WorkOrderOut(**d))
-    return out
+    bulk = await ServiceVerifier.get_work_orders_bulk(db, ids)
+    return [WorkOrderOut(**d) for d in bulk]
 
 
 @router.post("/work-orders/{work_order_id}/record-followup", response_model=WorkOrderOut)

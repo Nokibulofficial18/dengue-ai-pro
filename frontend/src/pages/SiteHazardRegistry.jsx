@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { getCached, cachedGet, invalidateCache } from "../utils/apiCache";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -19,8 +20,15 @@ const WARDS_LIST = [
 ];
 
 export default function SiteHazardRegistry() {
-  // In-memory authority session state (never hardcoded into the static bundle)
-  const [authSession, setAuthSession] = useState(null);
+  // Authority session state (persisted in sessionStorage for smooth cross-module navigation)
+  const [authSession, setAuthSession] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem("dengue_auth_session");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
   const [loginForm, setLoginForm] = useState({ username: "authority", password: "dengue2026" });
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState(null);
@@ -28,11 +36,11 @@ export default function SiteHazardRegistry() {
   // Active navigation tab inside Registry
   const [activeTab, setActiveTab] = useState("properties"); // 'properties' | 'locations' | 'timeline' | 'recurring' | 'reports'
 
-  // Data states
-  const [properties, setProperties] = useState([]);
-  const [locations, setLocations] = useState([]);
-  const [recurringLocations, setRecurringLocations] = useState([]);
-  const [citizenReports, setCitizenReports] = useState([]);
+  // Data states initialized from client cache for instant 0ms mount render
+  const [properties, setProperties] = useState(() => getCached(`${API_URL}/api/sites/properties`) || []);
+  const [locations, setLocations] = useState(() => getCached(`${API_URL}/api/sites/locations`) || []);
+  const [recurringLocations, setRecurringLocations] = useState(() => getCached(`${API_URL}/api/sites/locations/recurring?days=90`) || []);
+  const [citizenReports, setCitizenReports] = useState(() => getCached(`${API_URL}/api/sites/citizen-reports`) || []);
   const [selectedLocationTimeline, setSelectedLocationTimeline] = useState(null);
   const [selectedLocationId, setSelectedLocationId] = useState(null);
   const [locationSchedulingStatus, setLocationSchedulingStatus] = useState(null);
@@ -170,33 +178,43 @@ export default function SiteHazardRegistry() {
   };
 
   const handleLogout = () => {
+    sessionStorage.removeItem("dengue_auth_session");
     setAuthSession(null);
   };
 
+  useEffect(() => {
+    if (authSession) {
+      sessionStorage.setItem("dengue_auth_session", JSON.stringify(authSession));
+    }
+  }, [authSession]);
+
   // -------------------------------------------------------------
-  // Data Fetching
+  // Data Fetching with SWR client-side caching
   // -------------------------------------------------------------
-  const refreshAllData = async () => {
+  const refreshAllData = async (forceRefresh = false) => {
     if (!authSession) return;
-    setLoading(true);
+    // Only show loading spinner on cold cache
+    if (properties.length === 0 && locations.length === 0) {
+      setLoading(true);
+    }
     setActionError(null);
     const headers = getAuthHeaders();
 
     try {
       // 1. Fetch properties
-      const propsRes = await axios.get(`${API_URL}/api/sites/properties`, { headers });
+      const propsRes = await cachedGet(`${API_URL}/api/sites/properties`, { headers }, undefined, forceRefresh);
       setProperties(propsRes.data);
 
       // 2. Fetch locations
-      const locsRes = await axios.get(`${API_URL}/api/sites/locations`, { headers });
+      const locsRes = await cachedGet(`${API_URL}/api/sites/locations`, { headers }, undefined, forceRefresh);
       setLocations(locsRes.data);
 
       // 3. Fetch recurring locations
-      const recRes = await axios.get(`${API_URL}/api/sites/locations/recurring?days=90`, { headers });
+      const recRes = await cachedGet(`${API_URL}/api/sites/locations/recurring?days=90`, { headers }, undefined, forceRefresh);
       setRecurringLocations(recRes.data);
 
       // 4. Fetch citizen reports
-      const crRes = await axios.get(`${API_URL}/api/sites/citizen-reports`, { headers });
+      const crRes = await cachedGet(`${API_URL}/api/sites/citizen-reports`, { headers }, undefined, forceRefresh);
       setCitizenReports(crRes.data);
 
       // 5. If a location is currently selected for timeline, refresh it
@@ -206,6 +224,7 @@ export default function SiteHazardRegistry() {
     } catch (err) {
       console.error("Failed to load registry data", err);
       if (err.response?.status === 401) {
+        sessionStorage.removeItem("dengue_auth_session");
         setAuthSession(null);
         setLoginError("Session expired. Please re-authenticate.");
       } else {

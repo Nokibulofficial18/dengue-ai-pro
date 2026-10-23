@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { getCached, cachedGet, invalidateCache } from "../utils/apiCache";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -27,13 +28,13 @@ export default function RepairPlanning() {
   // Active Hub Tab: 'opportunities' | 'assessments' | 'proposals' | 'financial' | 'outcomes'
   const [activeTab, setActiveTab] = useState("opportunities");
 
-  // Global Data
+  // Global Data initialized from client cache for instant 0ms mount render
   const [loading, setLoading] = useState(false);
-  const [portfolioStats, setPortfolioStats] = useState(null);
-  const [opportunities, setOpportunities] = useState([]);
-  const [properties, setProperties] = useState([]);
-  const [assessments, setAssessments] = useState([]);
-  const [proposals, setProposals] = useState([]);
+  const [portfolioStats, setPortfolioStats] = useState(() => getCached(`${API_URL}/api/repair-planning/portfolio`));
+  const [opportunities, setOpportunities] = useState(() => getCached(`${API_URL}/api/repair-planning/opportunities`) || []);
+  const [properties, setProperties] = useState(() => getCached(`${API_URL}/api/sites/properties`) || []);
+  const [assessments, setAssessments] = useState(() => getCached(`${API_URL}/api/repair-planning/assessments`) || []);
+  const [proposals, setProposals] = useState(() => getCached(`${API_URL}/api/repair-planning/proposals`) || []);
 
   // Filters for Opportunities
   const [searchQuery, setSearchQuery] = useState("");
@@ -183,32 +184,36 @@ export default function RepairPlanning() {
   };
 
   // ==========================================================================
-  // INITIAL DATA FETCHING
+  // INITIAL DATA FETCHING with SWR client-side caching
   // ==========================================================================
-  const fetchAllData = async () => {
-    setLoading(true);
+  const fetchAllData = async (forceRefresh = false) => {
+    if (!portfolioStats && opportunities.length === 0) {
+      setLoading(true);
+    }
     try {
       // 1. Portfolio economics
-      const portRes = await axios.get(`${API_URL}/api/repair-planning/portfolio`, authHeaders).catch(() => null);
+      const portRes = await cachedGet(`${API_URL}/api/repair-planning/portfolio`, authHeaders, undefined, forceRefresh).catch(() => null);
       if (portRes?.data) setPortfolioStats(portRes.data);
 
       // 2. Opportunities
-      const oppRes = await axios.get(
+      const oppRes = await cachedGet(
         `${API_URL}/api/repair-planning/opportunities?min_recurrences=${minRecurrences}&min_spend=${minSpend}`,
-        authHeaders
+        authHeaders,
+        undefined,
+        forceRefresh
       ).catch(() => null);
       if (oppRes?.data) setOpportunities(oppRes.data);
 
       // 3. Properties from sites router
-      const propRes = await axios.get(`${API_URL}/api/sites/properties`, authHeaders).catch(() => null);
+      const propRes = await cachedGet(`${API_URL}/api/sites/properties`, authHeaders, undefined, forceRefresh).catch(() => null);
       if (propRes?.data) setProperties(propRes.data);
 
       // 4. Assessments
-      const assessRes = await axios.get(`${API_URL}/api/repair-planning/assessments`, authHeaders).catch(() => null);
+      const assessRes = await cachedGet(`${API_URL}/api/repair-planning/assessments`, authHeaders, undefined, forceRefresh).catch(() => null);
       if (assessRes?.data) setAssessments(assessRes.data);
 
       // 5. Proposals
-      const propListRes = await axios.get(`${API_URL}/api/repair-planning/proposals`, authHeaders).catch(() => null);
+      const propListRes = await cachedGet(`${API_URL}/api/repair-planning/proposals`, authHeaders, undefined, forceRefresh).catch(() => null);
       if (propListRes?.data) {
         setProposals(propListRes.data);
         // Default selected proposal for financial workspace if none selected
