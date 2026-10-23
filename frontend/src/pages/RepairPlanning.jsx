@@ -222,6 +222,10 @@ export default function RepairPlanning() {
       }
     } catch (err) {
       console.error("Error loading repair planning data:", err);
+      if (err.response?.status === 401) {
+        sessionStorage.removeItem("dengue_auth_session");
+        setAuthSession(null);
+      }
     } finally {
       setLoading(false);
     }

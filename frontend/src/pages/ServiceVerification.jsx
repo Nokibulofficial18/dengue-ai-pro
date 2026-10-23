@@ -149,6 +149,11 @@ export default function ServiceVerification() {
       }
     } catch (err) {
       console.error("Error fetching service verification data:", err);
+      if (err.response?.status === 401) {
+        sessionStorage.removeItem("dengue_auth_session");
+        setAuthSession(null);
+        setLoginError("Authority session expired. Please re-authenticate.");
+      }
       setActionError(err.response?.data?.detail || "Failed to load service records from server.");
     } finally {
       setLoading(false);

@@ -11,9 +11,11 @@ THIS IS NOT A SUBSTITUTE FOR FULL PRODUCTION ROLE-BASED ACCESS CONTROL (RBAC),
 MULTI-FACTOR AUTHENTICATION, OR ENTERPRISE OIDC/OAUTH2 INFRASTRUCTURE.
 """
 
+import base64
 from datetime import datetime, timedelta, timezone
 import hashlib
 import hmac
+import json
 import os
 import secrets
 from typing import Optional
@@ -26,7 +28,7 @@ AUTHORITY_USERNAME = os.getenv("AUTHORITY_USERNAME", "authority")
 AUTHORITY_PASSWORD = os.getenv("AUTHORITY_PASSWORD", "dengue2026")
 SECRET_KEY = os.getenv("AUTH_SECRET_KEY", "dengueai-pro-development-session-secret-key-32b")
 
-# In-memory session store for local dev sessions: token -> user dict
+# In-memory session store for backward compatibility: token -> user dict
 ACTIVE_SESSIONS: dict[str, dict] = {}
 
 
@@ -77,13 +79,42 @@ def verify_authority_credentials(username: str, password: str, requested_role: O
 
 
 def create_session(user: AuthorityUser) -> str:
-    """Generate an in-memory session token for the authenticated authority user."""
-    token = f"auth_{secrets.token_urlsafe(32)}"
-    ACTIVE_SESSIONS[token] = {
+    """
+    Generate a stateless HMAC-signed session token for the authenticated authority user.
+    Stateless signed tokens persist across server restarts, redeployments, and
+    multi-process workers without requiring in-memory session synchronization.
+    """
+    payload = {
         "user": user.model_dump(),
         "created_at": datetime.now(timezone.utc).isoformat(),
+        "nonce": secrets.token_hex(8),
     }
+    payload_json = json.dumps(payload, separators=(',', ':'))
+    payload_b64 = base64.urlsafe_b64encode(payload_json.encode()).decode()
+    signature = hmac.new(SECRET_KEY.encode(), payload_b64.encode(), hashlib.sha256).hexdigest()
+    token = f"auth_{payload_b64}.{signature}"
+
+    # Also record in memory for local debug / backward compatibility
+    ACTIVE_SESSIONS[token] = payload
     return token
+
+
+def decode_signed_token(token_str: str) -> Optional[AuthorityUser]:
+    """Verify and decode a stateless HMAC-signed session token."""
+    if not token_str.startswith("auth_"):
+        return None
+    token_body = token_str[5:]
+    if "." in token_body:
+        payload_b64, signature = token_body.split(".", 1)
+        expected_sig = hmac.new(SECRET_KEY.encode(), payload_b64.encode(), hashlib.sha256).hexdigest()
+        if secrets.compare_digest(signature, expected_sig):
+            try:
+                payload_json = base64.urlsafe_b64decode(payload_b64.encode()).decode()
+                data = json.loads(payload_json)
+                return AuthorityUser(**data["user"])
+            except Exception:
+                return None
+    return None
 
 
 async def get_current_authority_user(
@@ -93,9 +124,8 @@ async def get_current_authority_user(
     """
     FastAPI dependency that enforces authority authentication on protected endpoints.
     Accepts:
-      1. Authorization: Bearer <session_token>
-      2. Authorization: Bearer <AUTHORITY_DEV_KEY>
-      3. X-Authority-Key: <AUTHORITY_DEV_KEY>
+      1. Authorization: Bearer <signed_token_or_dev_key>
+      2. X-Authority-Key: <signed_token_or_dev_key>
     """
     token = None
     if authorization:
@@ -107,7 +137,7 @@ async def get_current_authority_user(
 
     key_candidate = x_authority_key or token
 
-    # Check direct dev key (configured via environment)
+    # 1. Check direct dev key (configured via environment or default)
     if key_candidate and secrets.compare_digest(key_candidate, AUTHORITY_DEV_KEY):
         return AuthorityUser(
             username="authority_key_holder",
@@ -116,7 +146,13 @@ async def get_current_authority_user(
             agency="DNCC Vector Control Division",
         )
 
-    # Check active session token
+    # 2. Check stateless signed token
+    if key_candidate:
+        signed_user = decode_signed_token(key_candidate)
+        if signed_user:
+            return signed_user
+
+    # 3. Check active in-memory session token fallback
     if key_candidate and key_candidate in ACTIVE_SESSIONS:
         session_data = ACTIVE_SESSIONS[key_candidate]
         return AuthorityUser(**session_data["user"])
@@ -129,3 +165,4 @@ async def get_current_authority_user(
         ),
         headers={"WWW-Authenticate": "Bearer"},
     )
+

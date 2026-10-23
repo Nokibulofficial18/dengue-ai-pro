@@ -160,6 +160,11 @@ export default function SmartScheduling() {
       setProperties(propRes.data);
     } catch (err) {
       console.error("Failed to load scheduling data", err);
+      if (err.response?.status === 401) {
+        sessionStorage.removeItem("dengue_auth_session");
+        setAuthSession(null);
+        setLoginError("Session expired or invalid. Please re-authenticate.");
+      }
       setActionError(err.response?.data?.detail || "Failed to load scheduling records.");
     } finally {
       setLoading(false);
